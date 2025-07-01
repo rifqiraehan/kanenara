@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kanenara</title>
+    <link href="./assets/css/output.css" rel="stylesheet" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon/favicon-16x16.png">
+    <link rel="manifest" href="./assets/favicon/site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body class="bg-white text-gray-800 font-sans">
+    <header class="border-b border-white top-0 z-10 bg-white shadow-sm">
+      <div class="max-w-xl mx-auto px-4 py-3 text-center">
+        <h1 class="text-green-600 font-semibold text-lg">Kane<span class="text-gray-600">nara</span></h1>
+      </div>
+    </header>
+
+    <main class="max-w-xl mx-auto px-4 py-6 space-y-6">
+      <!-- Total Balance -->
+      <section class="text-center">
+        <h2 class="text-sm font-medium text-gray-500">Total Balance</h2>
+        <p class="text-3xl font-bold text-gray-900">Rp 1.000.000,00</p>
+      </section>
+
+      <!-- Line Chart Placeholder -->
+      <section class="bg-gray-100 h-40 rounded-xl flex items-center justify-center text-center text-sm text-gray-500">
+        Line Graph of Income (Up) and Outcome (Down); x: date and hour, y: income/outcome
+      </section>
+
+      <!-- Menu Buttons -->
+      <section class="flex justify-center gap-6">
+        <div class="relative group button-group flex flex-col items-center">
+          <button class="w-12 h-12 flex items-center justify-center rounded-full bg-yellow-400 text-white shadow hover:scale-105 transition cursor-pointer">
+            <i class="fas fa-wallet"></i>
+          </button>
+          <span class="tooltip">Account</span>
+        </div>
+        <div class="relative group button-group flex flex-col items-center">
+          <button class="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white shadow hover:scale-105 transition cursor-pointer">
+            <i class="fas fa-plus"></i>
+          </button>
+          <span class="tooltip">Add Transaction</span>
+        </div>
+        <div class="relative group button-group flex flex-col items-center">
+          <button class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-500 text-white shadow hover:scale-105 transition cursor-pointer">
+            <i class="fas fa-gear"></i>
+          </button>
+          <span class="tooltip">Settings</span>
+        </div>
+      </section>
+
+      <!-- Accounts List -->
+      <section class="space-y-3">
+        <h3 class="text-lg font-semibold text-gray-600">Accounts</h3>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between p-3 rounded-lg bg-gray-100 active:scale-102 hover:scale-102 transition cursor-pointer">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-gray-400 rounded"></div>
+              <span class="text-sm">Common Wealth</span>
+            </div>
+            <span class="text-sm font-medium">Rp 500.000,00</span>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-lg bg-yellow-100 active:scale-102 hover:scale-102 transition cursor-pointer">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-yellow-300 rounded"></div>
+              <span class="text-sm">E-Money</span>
+            </div>
+            <span class="text-sm font-medium">Rp 100.000,00</span>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-lg bg-green-100 active:scale-102 hover:scale-102 transition cursor-pointer">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-green-300 rounded"></div>
+              <span class="text-sm">Cash</span>
+            </div>
+            <span class="text-sm font-medium">Rp 400.000,00</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Transactions List -->
+      <section class="space-y-3">
+        <h3 class="text-lg font-semibold text-gray-600">Transactions</h3>
+
+        <!-- 30 Juni 2025 -->
+        <div class="space-y-1">
+          <div class="flex items-center justify-between border-b border-gray-300 pb-1">
+            <span class="text-sm font-medium text-gray-700">30 Juni 2025</span>
+            <span class="text-green-600 text-sm font-semibold">Σ + Rp 450.000,00</span>
+          </div>
+
+          <div class="flex flex-col">
+            <!-- Expense -->
+            <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition-colors duration-150 cursor-pointer">
+              <div class="flex justify-between items-start px-0 transition-transform duration-150 hover:scale-[0.96] active:scale-[0.96]">
+                <div class="space-y-1">
+                  <p class="text-sm font-medium text-gray-800">Beli Makan Siang</p>
+                  <div class="inline-flex items-center px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded">Cash</div>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm font-semibold text-red-600">Rp 50.000,00</p>
+                  <p class="text-xs text-gray-500">19.45</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transfer -->
+            <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition-colors duration-150 cursor-pointer">
+              <div class="flex justify-between items-start px-0 transition-transform duration-150 hover:scale-[0.96] active:scale-[0.96]">
+                <div class="space-y-1">
+                  <p class="text-sm font-medium text-gray-800">Transfer ke Common Wealth</p>
+                  <div class="inline-flex items-center px-2 py-0.5 bg-gray-200 text-xs rounded">Common Wealth</div>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm font-semibold text-green-600">Rp 500.000,00</p>
+                  <p class="text-xs text-gray-500">18.45</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 28 Juni 2025 -->
+        <div class="space-y-1">
+          <div class="flex items-center justify-between border-b border-gray-300 pb-1">
+            <span class="text-sm font-medium text-gray-700">28 Juni 2025</span>
+            <span class="text-red-600 text-sm font-semibold">Σ - Rp 250.000,00</span>
+          </div>
+
+          <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition-colors duration-150 cursor-pointer">
+            <div class="flex justify-between items-start px-0 transition-transform duration-150 hover:scale-[0.96] active:scale-[0.96]">
+              <div class="space-y-1">
+                <p class="text-sm font-medium text-gray-800">Akses Masuk Tol Jagorawi</p>
+                <div class="inline-flex items-center px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded">E-Money</div>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-semibold text-red-600">Rp 250.000,00</p>
+                <p class="text-xs text-gray-500">08.45</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="text-center py-6 text-md text-gray-400">
+      <p><span class="text-green-600 font-medium">Kane<span class="text-gray-600">nara</span></span> dibuat oleh Rifqi Raehan | 2025</p>
+    </footer>
+  </body>
+</html>
