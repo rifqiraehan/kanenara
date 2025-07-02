@@ -10,6 +10,8 @@
     <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon/favicon-16x16.png">
     <link rel="manifest" href="./assets/favicon/site.webmanifest">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script src="https://unpkg.com/dexie@4.0.11/dist/dexie.js"></script>
   </head>
   <body class="bg-white text-gray-800 font-sans">
     <header class="border-b border-white top-0 z-10 bg-white shadow-sm">
@@ -39,7 +41,7 @@
           <span class="tooltip">Account</span>
         </div>
         <div class="relative group button-group flex flex-col items-center">
-          <button class="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white shadow hover:scale-105 transition cursor-pointer">
+          <button data-action="add-transaction" class="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white shadow hover:scale-105 transition cursor-pointer">
             <i class="fas fa-plus"></i>
           </button>
           <span class="tooltip">Add Transaction</span>
@@ -148,5 +150,8 @@
     <footer class="text-center py-6 text-md text-gray-400">
       <p><span class="text-green-600 font-medium">Kane<span class="text-gray-600">nara</span></span> dibuat oleh Rifqi Raehan | 2025</p>
     </footer>
+
+    <script src="./scripts/db.js"></script>
+    <script type="module" src="./scripts/main.js"></script>
   </body>
 </html>
