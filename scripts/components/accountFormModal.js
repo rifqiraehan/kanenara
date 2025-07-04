@@ -156,7 +156,7 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
         window.showCustomAlert('Akun berhasil ditambahkan!', 'success');
       }
 
-      const event = new CustomEvent('accountDataChanged', {
+      const event = new CustomEvent('dataChanged', {
         detail: {
           accountId: isEditMode ? accountToEdit.id : null,
           changeType: isEditMode ? 'edit' : 'create'
@@ -192,7 +192,7 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
             await db.transactions.where('accountId').equals(accountToEdit.id).delete();
             await db.transactions.where('toAccountId').equals(accountToEdit.id).delete();
 
-            const event = new CustomEvent('accountDataChanged', {
+            const event = new CustomEvent('dataChanged', {
               detail: {
                 accountId: accountToEdit.id,
                 changeType: 'delete'
