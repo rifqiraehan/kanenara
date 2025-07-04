@@ -237,6 +237,9 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
             window.showCustomAlert('Gagal menghapus transaksi.', 'error');
             wrapper.classList.remove('hidden');
           }
+        },
+        () => {
+          wrapper.classList.remove('hidden');
         }
       );
     });
