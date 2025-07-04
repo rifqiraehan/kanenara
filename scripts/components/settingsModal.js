@@ -21,11 +21,11 @@ export async function openSettingsModal() {
         <h3 class="text-lg font-medium text-gray-700 mb-3 text-center">Main Currency</h3>
         <div class="flex justify-center gap-3">
           <button id="currency-usd-btn"
-                  class="px-5 py-2 rounded-lg text-sm font-medium transition ${currentCurrency === 1 ? 'bg-gray-300 text-gray-800' : 'bg-gray-50 text-gray-600 hover:bg-gray-200'} cursor-pointer">
+                  class="px-5 py-2 rounded-lg text-sm font-medium transition border ${currentCurrency === 1 ? 'bg-gray-300 text-gray-800 border-transparent' : 'bg-white text-gray-600 hover:bg-gray-100 border-gray-300'} cursor-pointer">
             US Dollar
           </button>
           <button id="currency-idr-btn"
-                  class="px-5 py-2 rounded-lg text-sm font-medium transition ${currentCurrency === 0 ? 'bg-gray-300 text-gray-800' : 'bg-gray-50 text-gray-600 hover:bg-gray-200'} cursor-pointer">
+                  class="px-5 py-2 rounded-lg text-sm font-medium transition border ${currentCurrency === 0 ? 'bg-gray-300 text-gray-800 border-transparent' : 'bg-white text-gray-600 hover:bg-gray-100 border-gray-300'} cursor-pointer">
             Indonesia Rupiah
           </button>
         </div>
@@ -72,19 +72,18 @@ export async function openSettingsModal() {
 
   currencyUsdBtn.addEventListener('click', () => {
     selectedCurrency = 1;
-    currencyUsdBtn.classList.add('bg-gray-300', 'text-gray-800');
-    currencyUsdBtn.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-    currencyIdrBtn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-    currencyIdrBtn.classList.remove('bg-gray-300', 'text-gray-800');
+
+    currencyUsdBtn.className = 'px-5 py-2 rounded-lg text-sm font-medium transition bg-gray-300 text-gray-800 border border-transparent cursor-pointer';
+    currencyIdrBtn.className = 'px-5 py-2 rounded-lg text-sm font-medium transition bg-white text-gray-600 hover:bg-gray-100 border border-gray-300 cursor-pointer';
   });
 
   currencyIdrBtn.addEventListener('click', () => {
     selectedCurrency = 0;
-    currencyIdrBtn.classList.add('bg-gray-300', 'text-gray-800');
-    currencyIdrBtn.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-    currencyUsdBtn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-    currencyUsdBtn.classList.remove('bg-gray-300', 'text-gray-800');
+
+    currencyIdrBtn.className = 'px-5 py-2 rounded-lg text-sm font-medium transition bg-gray-300 text-gray-800 border border-transparent cursor-pointer';
+    currencyUsdBtn.className = 'px-5 py-2 rounded-lg text-sm font-medium transition bg-white text-gray-600 hover:bg-gray-100 border border-gray-300 cursor-pointer';
   });
+
 
   const exchangeRateEl = modal.querySelector('#exchange-rate-display');
   if (exchangeRateEl) {
