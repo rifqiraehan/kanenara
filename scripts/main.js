@@ -1,5 +1,7 @@
 import { openTransactionModal } from './components/transactionForm.js';
 
+let currentCurrencySetting = 0;
+
 document.addEventListener('DOMContentLoaded', async () => {
   const addTransactionBtn = document.querySelector('[data-action="add-transaction"]');
 
@@ -14,10 +16,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('IndexedDB tidak terdeteksi. Pastikan Dexie CDN dimuat.');
   }
 
+  await fetchCurrencySetting();
   await renderAccounts();
   renderTransactions();
   renderTotalBalance();
 });
+
+async function fetchCurrencySetting() {
+  const setting = await db.settings.get('main-currency');
+  if (setting !== undefined) {
+    currentCurrencySetting = setting.value;
+  }
+}
+
+function formatCurrency(amount) {
+  const locale = 'id-ID';
+  let options = {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  };
+  let symbol = 'Rp ';
+
+  if (currentCurrencySetting === 1) {
+    symbol = '$ ';
+    options.style = 'decimal';
+    options.minimumFractionDigits = 2;
+    options.maximumFractionDigits = 2;
+  }
+
+  const formatter = new Intl.NumberFormat(locale, options);
+  return symbol + formatter.format(amount);
+}
 
 function getTailwindColorClasses(baseColor) {
   const safeColor = baseColor || 'gray';
@@ -68,7 +97,7 @@ async function renderAccounts() {
         <div class="w-4 h-4 ${colors.colorDot} rounded"></div>
         <span class="text-sm">${acc.name}</span>
       </div>
-      <span class="text-sm font-medium">Rp ${acc.balance.toLocaleString()}</span>
+      <span class="text-sm font-medium">${formatCurrency(acc.balance)}</span>
     `;
     container.appendChild(el);
   }
@@ -115,7 +144,7 @@ async function renderTransactions() {
     const trxList = groupData.transactions;
 
     const section = document.createElement('div');
-    section.className = 'space-y-1';
+    section.className = 'space-y-1 mt-2';
 
     let total = 0;
     for (const trx of trxList) {
@@ -124,7 +153,7 @@ async function renderTransactions() {
       }
     }
 
-    const totalText = `Σ ${total < 0 ? '-' : '+'} Rp ${Math.abs(total).toLocaleString('id-ID')}`;
+    const totalText = `Σ ${total < 0 ? '-' : '+'} ${formatCurrency(total)}`;
     const totalClass = total < 0 ? 'text-red-600' : 'text-green-600';
 
     const groupHeader = `
@@ -138,7 +167,7 @@ async function renderTransactions() {
       const acc = accountMap[trx.accountId];
       const toAcc = trx.toAccountId ? accountMap[trx.toAccountId] : null;
       const time = new Date(trx.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-      const amount = `Rp ${trx.amount.toLocaleString('id-ID')}`;
+      const amount = formatCurrency(trx.amount);
       const amountClass = trx.type === 'expense' ? 'text-red-600' : 'text-green-600';
 
       let labelHtml;
@@ -146,13 +175,11 @@ async function renderTransactions() {
       if (trx.type === 'transfer') {
         const fromAccountName = acc?.name || 'Unknown';
         const toAccountName = toAcc?.name || 'Unknown';
-
-        // Dynamic color class generation for transfer labels
         const fromColors = getTailwindColorClasses(acc?.color);
         const toColors = getTailwindColorClasses(toAcc?.color);
 
         labelHtml = `
-          <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs">
+          <div class="inline-flex items-center gap-1 py-0.5 rounded text-xs">
             <span class="${fromColors.bg} ${fromColors.text} px-2 py-0.5 rounded">${fromAccountName}</span>
             <i class="fa-solid fa-arrow-right text-gray-500 mx-1"></i>
             <span class="${toColors.bg} ${toColors.text} px-2 py-0.5 rounded">${toAccountName}</span>
@@ -191,10 +218,12 @@ async function renderTotalBalance() {
   }, 0);
 
   const el = document.querySelector('section.text-center p.text-3xl');
-  el.textContent = `Rp ${totalBalance.toLocaleString('id-ID')},00`;
+  el.textContent = formatCurrency(totalBalance);
 }
 
 window.renderTransactions = renderTransactions;
 window.renderAccounts = renderAccounts;
 window.renderTotalBalance = renderTotalBalance;
 window.calculateAccountBalances = calculateAccountBalances;
+window.fetchCurrencySetting = fetchCurrencySetting;
+window.formatCurrency = formatCurrency;

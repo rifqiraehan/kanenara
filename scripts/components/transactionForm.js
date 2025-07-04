@@ -30,10 +30,10 @@ export async function openTransactionModal(accountsWithBalances = []) {
 
   const getAccountBalanceDisplay = (accountId) => {
     const account = accounts.find(a => a.id === accountId);
-    return account ? account.balance.toLocaleString('id-ID') : '0,00';
+    return account ? window.formatCurrency(account.balance) : window.formatCurrency(0);
   };
 
-  const createBalanceDisplayHtml = (balance) => `
+  const createBalanceDisplayHtml = (formattedBalanceString) => `
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
@@ -46,7 +46,7 @@ export async function openTransactionModal(accountsWithBalances = []) {
         clip-rule="evenodd"
       ></path>
     </svg>
-    Total Balance: Rp ${balance}
+    Total Balance: ${formattedBalanceString}
   `;
 
   wrapper.innerHTML = `
@@ -125,8 +125,8 @@ export async function openTransactionModal(accountsWithBalances = []) {
   const toAccountSelect = modal.querySelector('#to-account');
   const fromAccountBalanceDisplay = modal.querySelector('#from-account-balance-display');
   const toAccountBalanceDisplay = modal.querySelector('#to-account-balance-display');
-
   const toSection = modal.querySelector('#to-account-section');
+  const currencySymbolInput = modal.querySelector('#currency-symbol-input');
 
   const updateBalanceDisplays = () => {
     const selectedFromAccountId = fromAccountSelect.value;
@@ -138,6 +138,13 @@ export async function openTransactionModal(accountsWithBalances = []) {
       toAccountBalanceDisplay.innerHTML = createBalanceDisplayHtml(getAccountBalanceDisplay(selectedToAccountId));
     } else if (toAccountBalanceDisplay) {
       toAccountBalanceDisplay.innerHTML = createBalanceDisplayHtml('0,00');
+    }
+  };
+
+  const updateInputCurrencySymbol = () => {
+    const symbol = window.currentCurrencySetting === 1 ? '$' : 'Rp';
+    if (currencySymbolInput) {
+      currencySymbolInput.textContent = symbol;
     }
   };
 
@@ -191,6 +198,7 @@ export async function openTransactionModal(accountsWithBalances = []) {
       toAccountId: state.type === 'transfer' ? toId : null
     });
 
+    await window.fetchCurrencySetting();
     window.renderTransactions();
     window.renderTotalBalance();
     window.renderAccounts();
@@ -205,5 +213,7 @@ export async function openTransactionModal(accountsWithBalances = []) {
   if (state.type !== 'transfer') {
     toSection.classList.add('hidden');
   }
+
   updateBalanceDisplays();
+  updateInputCurrencySymbol();
 }

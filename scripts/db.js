@@ -20,6 +20,15 @@ async function seedDefaultAccounts() {
   }
 }
 
+async function seedDefaultSettings() {
+  const currencySetting = await db.settings.get('main-currency');
+  if (currencySetting === undefined) {
+    await db.settings.put({ key: 'main-currency', value: 0 });
+    console.log('[Seed] Pengaturan mata uang default ditambahkan (IDR).');
+  }
+}
+
 seedDefaultAccounts();
+seedDefaultSettings();
 
 window.db = db;
