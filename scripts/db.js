@@ -3,7 +3,7 @@ const db = new Dexie('MoneyTrackerDB');
 db.version(1).stores({
   accounts: '++id, name, initialBalance, color',
   transactions: '++id, type, date, amount, accountId, toAccountId',
-  settings: 'key'
+  settings: 'key,value'
 });
 
 const defaultAccounts = [
