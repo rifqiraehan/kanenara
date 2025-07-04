@@ -1,4 +1,6 @@
 import { openTransactionModal } from './components/transactionForm.js';
+import { openAccountModal } from './components/accountModal.js';
+import { openAccountFormModal } from './components/accountFormModal.js';
 
 let currentCurrencySetting = 0;
 
@@ -88,11 +90,19 @@ window.showCustomAlert = showCustomAlert;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const addTransactionBtn = document.querySelector('[data-action="add-transaction"]');
+  const accountBtn = document.querySelector('[data-action="account-menu"]');
 
   if (addTransactionBtn) {
     addTransactionBtn.addEventListener('click', async () => {
       const accountsWithBalances = await calculateAccountBalances();
       openTransactionModal(accountsWithBalances);
+    });
+  }
+
+  if (accountBtn) {
+    accountBtn.addEventListener('click', async () => {
+      const accountsWithBalances = await calculateAccountBalances();
+      openAccountModal(accountsWithBalances);
     });
   }
 
@@ -110,6 +120,7 @@ async function fetchCurrencySetting() {
   const setting = await db.settings.get('main-currency');
   if (setting !== undefined) {
     currentCurrencySetting = setting.value;
+    window.currentCurrencySetting = currentCurrencySetting;
   }
 }
 
@@ -147,14 +158,14 @@ async function calculateAccountBalances() {
 
   const accountBalances = accounts.map(account => {
     const balance = transactions.reduce((sum, trx) => {
-      if (trx.accountId === account.id) {
+      if (Number(trx.accountId) === Number(account.id)) {
         if (trx.type === 'expense' || trx.type === 'transfer') {
           return sum - trx.amount;
         } else if (trx.type === 'income') {
           return sum + trx.amount;
         }
       }
-      if (trx.toAccountId === account.id && trx.type === 'transfer') {
+      if (Number(trx.toAccountId) === Number(account.id) && trx.type === 'transfer') {
         return sum + trx.amount;
       }
       return sum;
@@ -176,6 +187,7 @@ async function renderAccounts() {
     const el = document.createElement('div');
 
     el.className = `flex items-center justify-between p-3 rounded-lg ${colors.bg} active:scale-102 hover:scale-102 transition cursor-pointer`;
+    el.dataset.accountId = acc.id;
     el.innerHTML = `
       <div class="flex items-center gap-2">
         <div class="w-4 h-4 ${colors.colorDot} rounded"></div>
@@ -183,6 +195,16 @@ async function renderAccounts() {
       </div>
       <span class="text-sm font-medium">${formatCurrency(acc.balance)}</span>
     `;
+
+    el.addEventListener('click', async () => {
+      const accountToEdit = await db.accounts.get(Number(acc.id));
+      if (accountToEdit) {
+        openAccountFormModal(accountToEdit);
+      } else {
+        window.showCustomAlert('Akun tidak ditemukan.', 'error');
+      }
+    });
+
     container.appendChild(el);
   }
 }
@@ -320,9 +342,17 @@ async function renderTotalBalance() {
   el.textContent = formatCurrency(totalBalance);
 }
 
+window.addEventListener('accountDataChanged', async () => {
+  await window.renderAccounts();
+  await window.renderTotalBalance();
+  await window.renderTransactions?.();
+});
+
 window.renderTransactions = renderTransactions;
 window.renderAccounts = renderAccounts;
 window.renderTotalBalance = renderTotalBalance;
 window.calculateAccountBalances = calculateAccountBalances;
 window.fetchCurrencySetting = fetchCurrencySetting;
 window.formatCurrency = formatCurrency;
+window.getTailwindColorClasses = getTailwindColorClasses;
+window.currentCurrencySetting = currentCurrencySetting;
