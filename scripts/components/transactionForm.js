@@ -15,8 +15,8 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
   let state = {
     type: isEditMode ? transactionToEdit.type : 'expense',
     date: isEditMode ? new Date(transactionToEdit.date) : new Date(),
-    fromAccountId: isEditMode ? transactionToEdit.accountId : accounts[0]?.id,
-    toAccountId: isEditMode ? transactionToEdit.toAccountId : (accounts[1]?.id || null),
+    fromAccountId: isEditMode ? transactionToEdit.accountId : undefined,
+    toAccountId: isEditMode ? transactionToEdit.toAccountId : undefined,
     amount: isEditMode ? transactionToEdit.amount : 0,
     note: isEditMode ? transactionToEdit.description : ''
   };
@@ -33,7 +33,7 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
   wrapper.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
 
   const getAccountBalanceDisplay = (accountId) => {
-    const account = accounts.find(a => a.id === accountId);
+    const account = accounts.find(a => Number(a.id) === Number(accountId));
     return account ? window.formatCurrency(account.balance) : window.formatCurrency(0);
   };
 
@@ -170,6 +170,9 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
   if (toAccountSelect) {
     toAccountSelect.addEventListener('change', updateBalanceDisplays);
   }
+
+  updateBalanceDisplays();
+  updateInputCurrencySymbol();
 
   modal.querySelector('#btn-save')?.addEventListener('click', async () => {
     const amount = parseFloat(modal.querySelector('#input-amount').value);
