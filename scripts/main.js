@@ -4,8 +4,6 @@ import { openAccountFormModal } from './components/accountFormModal.js';
 import { openSettingsModal } from './components/settingsModal.js';
 
 let currentCurrencySetting = 0;
-const EXCHANGE_RATE_USD_TO_IDR = 16000;
-window.EXCHANGE_RATE_USD_TO_IDR = EXCHANGE_RATE_USD_TO_IDR;
 
 function showCustomAlert(message, type = 'success', duration = 3000) {
   let iconHtml = '';
