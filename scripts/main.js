@@ -1,8 +1,11 @@
 import { openTransactionModal } from './components/transactionForm.js';
 import { openAccountModal } from './components/accountModal.js';
 import { openAccountFormModal } from './components/accountFormModal.js';
+import { openSettingsModal } from './components/settingsModal.js';
 
 let currentCurrencySetting = 0;
+const EXCHANGE_RATE_USD_TO_IDR = 16000;
+window.EXCHANGE_RATE_USD_TO_IDR = EXCHANGE_RATE_USD_TO_IDR;
 
 function showCustomAlert(message, type = 'success', duration = 3000) {
   let iconHtml = '';
@@ -91,6 +94,7 @@ window.showCustomAlert = showCustomAlert;
 document.addEventListener('DOMContentLoaded', async () => {
   const addTransactionBtn = document.querySelector('[data-action="add-transaction"]');
   const accountBtn = document.querySelector('[data-action="account-menu"]');
+  const settingsBtn = document.querySelector('[data-action="settings-menu"]');
 
   if (addTransactionBtn) {
     addTransactionBtn.addEventListener('click', async () => {
@@ -103,6 +107,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     accountBtn.addEventListener('click', async () => {
       const accountsWithBalances = await calculateAccountBalances();
       openAccountModal(accountsWithBalances);
+    });
+  }
+
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+      openSettingsModal();
     });
   }
 
@@ -126,18 +136,12 @@ async function fetchCurrencySetting() {
 
 function formatCurrency(amount) {
   const locale = 'id-ID';
-  let options = {
+  const isUSD = window.currentCurrencySetting === 1;
+  const symbol = isUSD ? '$ ' : 'Rp ';
+  const options = {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   };
-  let symbol = 'Rp ';
-
-  if (currentCurrencySetting === 1) {
-    symbol = '$ ';
-    options.style = 'decimal';
-    options.minimumFractionDigits = 2;
-    options.maximumFractionDigits = 2;
-  }
 
   const formatter = new Intl.NumberFormat(locale, options);
   return symbol + formatter.format(amount);
@@ -212,7 +216,7 @@ async function renderAccounts() {
 async function renderTransactions() {
   const db = window.db;
   if (!db) {
-    console.error('Database is not available for transactions.');
+    console.error('Database tidak tersedia.');
     return;
   }
 
@@ -342,10 +346,70 @@ async function renderTotalBalance() {
   el.textContent = formatCurrency(totalBalance);
 }
 
-window.addEventListener('accountDataChanged', async () => {
+async function fetchExchangeRateUSDToIDR() {
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const data = await res.json();
+    if (data && data.result === 'success') {
+      const rate = data.rates?.IDR;
+      if (rate) {
+        console.log(`Fetched USD → IDR exchange rate: ${rate}`);
+        return rate;
+      }
+    }
+    throw new Error('Exchange rate data invalid');
+  } catch (err) {
+    console.error('Failed to fetch exchange rate:', err);
+    window.showCustomAlert('Gagal mengambil nilai tukar USD ↔ IDR. Gunakan nilai default 16000.', 'warning');
+
+    return 16000;
+  }
+}
+
+async function convertCurrencyInDatabase(newCurrencySetting) {
+  const db = window.db;
+  const oldSetting = window.currentCurrencySetting;
+  if (oldSetting === newCurrencySetting) return;
+
+  const liveRate = await fetchExchangeRateUSDToIDR();
+  let multiplier;
+  if (oldSetting === 0 && newCurrencySetting === 1) {
+    multiplier = 1 / liveRate;
+  } else if (oldSetting === 1 && newCurrencySetting === 0) {
+    multiplier = liveRate;
+  } else {
+    console.warn("Unexpected currency conversion setting.");
+    return;
+  }
+
+  await db.transaction('rw', db.accounts, db.transactions, db.settings, async (tx) => {
+    const accounts = await tx.accounts.toArray();
+    const updatedAccounts = accounts.map(acc => ({
+      ...acc,
+      initialBalance: parseFloat((acc.initialBalance * multiplier).toFixed(2))
+    }));
+    await tx.accounts.bulkPut(updatedAccounts);
+
+    const transactions = await tx.transactions.toArray();
+    const updatedTransactions = transactions.map(trx => ({
+      ...trx,
+      amount: parseFloat((trx.amount * multiplier).toFixed(2))
+    }));
+    await tx.transactions.bulkPut(updatedTransactions);
+
+    await tx.settings.put({ key: 'main-currency', value: newCurrencySetting });
+    window.currentCurrencySetting = newCurrencySetting;
+  });
+
+  console.log(`Currency data converted using rate ${liveRate}`);
+}
+
+window.addEventListener('dataChanged', async () => {
+  console.log("Global dataChanged event received. Re-rendering UI.");
+  await window.fetchCurrencySetting();
   await window.renderAccounts();
   await window.renderTotalBalance();
-  await window.renderTransactions?.();
+  await window.renderTransactions();
 });
 
 window.renderTransactions = renderTransactions;
@@ -355,4 +419,5 @@ window.calculateAccountBalances = calculateAccountBalances;
 window.fetchCurrencySetting = fetchCurrencySetting;
 window.formatCurrency = formatCurrency;
 window.getTailwindColorClasses = getTailwindColorClasses;
-window.currentCurrencySetting = currentCurrencySetting;
+window.convertCurrencyInDatabase = convertCurrencyInDatabase;
+window.fetchExchangeRateUSDToIDR = fetchExchangeRateUSDToIDR;
