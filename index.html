@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <script src="https://unpkg.com/dexie@4.0.11/dist/dexie.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
   </head>
   <body class="bg-white text-gray-800 font-sans">
     <header class="border-b border-white top-0 z-10 bg-white shadow-sm">
@@ -26,8 +28,11 @@
         <p class="text-3xl font-bold text-gray-900"></p>
       </section>
 
-      <section class="bg-gray-100 h-40 rounded-xl flex items-center justify-center text-center text-sm text-gray-500">
-        Line Graph of Income (Up) and Outcome (Down); x: date and hour, y: income/outcome
+      <section class="bg-gray-100 rounded-xl p-4">
+        <h3 class="text-lg font-semibold text-gray-600 mb-2 text-center">Daily Flow</h3>
+        <div class="relative h-64">
+          <canvas id="incomeExpenseChart"></canvas>
+        </div>
       </section>
 
       <section class="flex justify-center gap-6">
