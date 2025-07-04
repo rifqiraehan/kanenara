@@ -1,28 +1,32 @@
-export async function openTransactionModal(accountsWithBalances = []) {
+import { openConfirmDeleteModal } from '../components/confirmModal.js';
+
+export async function openTransactionModal(accountsWithBalances = [], transactionToEdit = null) {
   const db = window.db;
   if (!db) {
-    alert('Database tidak tersedia.');
+    window.showCustomAlert('Database tidak tersedia.', 'error');
     return;
   }
 
   const accounts = accountsWithBalances.length > 0 ? accountsWithBalances : await window.calculateAccountBalances();
 
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = (now.getMonth() + 1).toString().padStart(2, '0');
-  const day = now.getDate().toString().padStart(2, '0');
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+  const isEditMode = transactionToEdit !== null;
+  const modalTitle = isEditMode ? 'Edit Transaction' : 'Add Transaction';
 
   let state = {
-    type: 'expense',
-    date: now,
-    fromAccountId: accounts[0]?.id,
-    toAccountId: accounts[1]?.id || null,
-    amount: 0,
-    note: ''
+    type: isEditMode ? transactionToEdit.type : 'expense',
+    date: isEditMode ? new Date(transactionToEdit.date) : new Date(),
+    fromAccountId: isEditMode ? transactionToEdit.accountId : accounts[0]?.id,
+    toAccountId: isEditMode ? transactionToEdit.toAccountId : (accounts[1]?.id || null),
+    amount: isEditMode ? transactionToEdit.amount : 0,
+    note: isEditMode ? transactionToEdit.description : ''
   };
+
+  const year = state.date.getFullYear();
+  const month = (state.date.getMonth() + 1).toString().padStart(2, '0');
+  const day = state.date.getDate().toString().padStart(2, '0');
+  const hours = state.date.getHours().toString().padStart(2, '0');
+  const minutes = state.date.getMinutes().toString().padStart(2, '0');
+  const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
 
   const wrapper = document.createElement('div');
   wrapper.id = 'transaction-modal';
@@ -51,12 +55,9 @@ export async function openTransactionModal(accountsWithBalances = []) {
 
   wrapper.innerHTML = `
     <div class="bg-white w-80 max-w-md rounded-2xl p-6 space-y-5 shadow-xl relative">
-      <h2 class="text-xl font-semibold text-center">Add Transaction</h2>
-
-      <div class="flex justify-center gap-4">
+      <h2 class="text-xl font-semibold text-center">${modalTitle}</h2> <div class="flex justify-center gap-4">
         ${['income', 'expense', 'transfer'].map(type => `
-          <button data-tab="${type}" class="tab-btn text-lg font-medium ${type === 'expense' ? 'bg-gray-200 rounded-full px-3' : ''} cursor-pointer">
-            ${type.charAt(0).toUpperCase() + type.slice(1)}
+          <button data-tab="${type}" class="tab-btn text-lg font-medium ${type === state.type ? 'bg-gray-200 rounded-full px-3' : ''} cursor-pointer"> ${type.charAt(0).toUpperCase() + type.slice(1)}
           </button>
         `).join('')}
       </div>
@@ -75,8 +76,7 @@ export async function openTransactionModal(accountsWithBalances = []) {
           </p>
       </div>
 
-      <div id="to-account-section" class="hidden">
-        <label class="text-sm font-medium">To Account:</label>
+      <div id="to-account-section" class="${state.type === 'transfer' ? '' : 'hidden'}"> <label class="text-sm font-medium">To Account:</label>
         <select id="to-account" class="w-full mt-1 px-3 py-2 border rounded text-sm">
           ${accounts.map(a => `<option value="${a.id}" ${a.id === state.toAccountId ? 'selected' : ''}>${a.name}</option>`).join('')}
         </select>
@@ -87,15 +87,14 @@ export async function openTransactionModal(accountsWithBalances = []) {
       <div class="w-full max-w-md mx-auto">
         <div class="mb-4">
           <div class="relative">
-            <span class="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-semibold text-gray-800 ml-3">Rp</span>
+            <span class="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-semibold text-gray-800 ml-3" id="currency-symbol-input">Rp</span>
             <input
               type="number"
               id="input-amount"
               class="w-full text-center text-4xl font-semibold text-gray-800 py- focus:outline-none focus:border-blue-500 pl-16 pr-3"
               placeholder="0"
               aria-label="Amount"
-            />
-          </div>
+              value="${state.amount || ''}" ></div>
         </div>
 
         <div class="mb-4">
@@ -106,11 +105,12 @@ export async function openTransactionModal(accountsWithBalances = []) {
             class="w-full text-center text-lg text-gray-700 py-2 focus:outline-none placeholder-gray-500"
             placeholder="add description..."
             aria-label="Description"
-          />
-        </div>
+            value="${state.note || ''}" ></div>
       </div>
 
       <div class="flex justify-center gap-4">
+        ${isEditMode ? ` <button id="btn-remove" class="px-6 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 active:bg-red-600 cursor-pointer">Remove</button>
+        ` : ''}
         <button id="btn-save" class="px-6 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 active:bg-green-600 cursor-pointer">Save</button>
         <button id="btn-cancel" class="px-6 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-100 active:bg-gray-100 cursor-pointer">Cancel</button>
       </div>
@@ -125,8 +125,9 @@ export async function openTransactionModal(accountsWithBalances = []) {
   const toAccountSelect = modal.querySelector('#to-account');
   const fromAccountBalanceDisplay = modal.querySelector('#from-account-balance-display');
   const toAccountBalanceDisplay = modal.querySelector('#to-account-balance-display');
-  const toSection = modal.querySelector('#to-account-section');
   const currencySymbolInput = modal.querySelector('#currency-symbol-input');
+
+  const toSection = modal.querySelector('#to-account-section');
 
   const updateBalanceDisplays = () => {
     const selectedFromAccountId = fromAccountSelect.value;
@@ -137,7 +138,7 @@ export async function openTransactionModal(accountsWithBalances = []) {
     if (toAccountBalanceDisplay && state.type === 'transfer') {
       toAccountBalanceDisplay.innerHTML = createBalanceDisplayHtml(getAccountBalanceDisplay(selectedToAccountId));
     } else if (toAccountBalanceDisplay) {
-      toAccountBalanceDisplay.innerHTML = createBalanceDisplayHtml('0,00');
+      toAccountBalanceDisplay.innerHTML = createBalanceDisplayHtml(window.formatCurrency(0));
     }
   };
 
@@ -185,18 +186,27 @@ export async function openTransactionModal(accountsWithBalances = []) {
     const finalDateTimeForStorage = baseDate.toISOString();
 
     if (isNaN(amount) || amount <= 0) {
-      alert('Jumlah tidak valid.');
+      window.showCustomAlert('Jumlah tidak valid.', 'warning');
       return;
     }
 
-    await db.transactions.add({
+    const transactionData = {
       type: state.type,
       date: finalDateTimeForStorage,
       description: note,
       amount,
       accountId: fromId,
       toAccountId: state.type === 'transfer' ? toId : null
-    });
+    };
+
+    if (isEditMode) {
+      transactionData.id = transactionToEdit.id;
+      await db.transactions.put(transactionData);
+      window.showCustomAlert('Transaksi berhasil diperbarui!', 'success');
+    } else {
+      await db.transactions.add(transactionData);
+      window.showCustomAlert('Transaksi berhasil ditambahkan!', 'success');
+    }
 
     await window.fetchCurrencySetting();
     window.renderTransactions();
@@ -206,6 +216,32 @@ export async function openTransactionModal(accountsWithBalances = []) {
     wrapper.remove();
   });
 
+  if (isEditMode) {
+    modal.querySelector('#btn-remove')?.addEventListener('click', async () => {
+      wrapper.classList.add('hidden');
+
+      openConfirmDeleteModal(
+        'Apakah Anda yakin ingin menghapus transaksi ini?',
+        async () => {
+          try {
+            await db.transactions.delete(transactionToEdit.id);
+            window.showCustomAlert('Transaksi berhasil dihapus!', 'success');
+
+            await window.fetchCurrencySetting();
+            window.renderTransactions();
+            window.renderTotalBalance();
+            window.renderAccounts();
+            wrapper.remove();
+          } catch (error) {
+            console.error("Error deleting transaction:", error);
+            window.showCustomAlert('Gagal menghapus transaksi.', 'error');
+            wrapper.classList.remove('hidden');
+          }
+        }
+      );
+    });
+  }
+
   modal.querySelector('#btn-cancel')?.addEventListener('click', () => {
     wrapper.remove();
   });
@@ -213,6 +249,7 @@ export async function openTransactionModal(accountsWithBalances = []) {
   if (state.type !== 'transfer') {
     toSection.classList.add('hidden');
   }
+  modal.querySelector(`[data-tab="${state.type}"]`)?.classList.add('bg-gray-200', 'rounded-full', 'px-3');
 
   updateBalanceDisplays();
   updateInputCurrencySymbol();

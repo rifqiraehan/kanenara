@@ -2,6 +2,90 @@ import { openTransactionModal } from './components/transactionForm.js';
 
 let currentCurrencySetting = 0;
 
+function showCustomAlert(message, type = 'success', duration = 3000) {
+  let iconHtml = '';
+  let borderColorClass = '';
+  let textColorClass = '';
+
+  switch (type) {
+    case 'success':
+      iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-green-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>`;
+      borderColorClass = 'border-green-300';
+      textColorClass = 'text-green-900';
+      break;
+    case 'error':
+      iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-red-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                  </svg>`;
+      borderColorClass = 'border-red-300';
+      textColorClass = 'text-red-900';
+      break;
+    case 'warning':
+      iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-yellow-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.305 3.293 2.093 3.293h13.174c1.788 0 2.959-1.793 2.093-3.293L12.96 2.47c-.865-1.5-3.377-1.5-4.242 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>`;
+      borderColorClass = 'border-yellow-300';
+      textColorClass = 'text-yellow-900';
+      break;
+    default:
+      iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063 0l.041.02a.75.75 0 01-.063 1.063l-.041.02a.75.75 0 01-1.063 0l-.041-.02a.75.75 0 01.063-1.063zM12 7.5h.008v.008H12V7.5z" />
+                  </svg>`;
+      borderColorClass = 'border-gray-300';
+      textColorClass = 'text-gray-900';
+  }
+
+  const outerWrapper = document.createElement('div');
+  outerWrapper.className = `fixed top-5 left-0 right-0 z-[1000] transition-all duration-300 ease-out opacity-0 translate-y-[-20px]`;
+  outerWrapper.role = 'alert';
+  const alertContent = document.createElement('div');
+  alertContent.className = `rounded-md ${borderColorClass} bg-white p-4 shadow-lg max-w-xl mx-auto`;
+
+  alertContent.innerHTML = `
+    <div class="flex items-start gap-4">
+      ${iconHtml}
+      <div class="flex-1">
+        <strong class="font-medium ${textColorClass}">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+        <p class="mt-0.5 text-sm text-gray-700">${message}</p>
+      </div>
+      <button class="-m-3 rounded-full p-1.5 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700" type="button" aria-label="Dismiss alert">
+        <span class="sr-only">Dismiss popup</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  `;
+
+  outerWrapper.appendChild(alertContent);
+  document.body.appendChild(outerWrapper);
+
+  setTimeout(() => {
+    outerWrapper.style.opacity = '1';
+    outerWrapper.style.transform = 'translateY(0)';
+  }, 10);
+
+  const dismissButton = alertContent.querySelector('button[aria-label="Dismiss alert"]');
+  const dismissAlert = () => {
+    outerWrapper.style.opacity = '0';
+    outerWrapper.style.transform = 'translateY(-20px)';
+    outerWrapper.addEventListener('transitionend', () => {
+      outerWrapper.remove();
+    }, { once: true });
+  };
+
+  dismissButton.addEventListener('click', dismissAlert);
+
+  if (duration > 0) {
+    setTimeout(dismissAlert, duration);
+  }
+}
+
+
+window.showCustomAlert = showCustomAlert;
+
 document.addEventListener('DOMContentLoaded', async () => {
   const addTransactionBtn = document.querySelector('[data-action="add-transaction"]');
 
@@ -192,7 +276,7 @@ async function renderTransactions() {
       }
 
       return `
-        <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition-colors duration-150 cursor-pointer">
+        <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition-colors duration-150 cursor-pointer" data-transaction-id="${trx.id}">
           <div class="flex justify-between items-start px-0 transition-transform duration-150 hover:scale-[0.96] active:scale-[0.96]">
             <div class="space-y-1">
               <p class="text-sm font-medium text-gray-800">${trx.description}</p>
@@ -209,6 +293,21 @@ async function renderTransactions() {
     section.innerHTML = groupHeader + trxHtml;
     container.appendChild(section);
   }
+
+  const transactionItems = container.querySelectorAll('[data-transaction-id]');
+  transactionItems.forEach(item => {
+    item.addEventListener('click', async (event) => {
+      const transactionId = parseInt(item.dataset.transactionId);
+      const transactionToEdit = await db.transactions.get(transactionId);
+
+      if (transactionToEdit) {
+        const accountsWithBalances = await calculateAccountBalances();
+        openTransactionModal(accountsWithBalances, transactionToEdit);
+      } else {
+        window.showCustomAlert('Transaksi tidak ditemukan.', 'error');
+      }
+    });
+  });
 }
 
 async function renderTotalBalance() {
