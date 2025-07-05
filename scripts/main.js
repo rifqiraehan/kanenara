@@ -2,8 +2,12 @@ import { openTransactionModal } from './components/transactionForm.js';
 import { openAccountModal } from './components/accountModal.js';
 import { openAccountFormModal } from './components/accountFormModal.js';
 import { openSettingsModal } from './components/settingsModal.js';
+import { renderIncomeExpenseChart } from './components/graph.js';
+import { createPaginationControls } from './components/pagination.js';
 
 let currentCurrencySetting = 0;
+let currentTransactionPage = 1;
+const TRANSACTIONS_PER_PAGE = 10;
 
 function showCustomAlert(message, type = 'success', duration = 3000) {
   let iconHtml = '';
@@ -118,10 +122,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('IndexedDB tidak terdeteksi. Pastikan Dexie CDN dimuat.');
   }
 
-  await fetchCurrencySetting();
-  await renderAccounts();
   renderTransactions();
   renderTotalBalance();
+  await fetchCurrencySetting();
+  await renderAccounts();
+  await renderIncomeExpenseChart();
 });
 
 async function fetchCurrencySetting() {
@@ -213,96 +218,76 @@ async function renderAccounts() {
 
 async function renderTransactions() {
   const db = window.db;
-  if (!db) {
-    console.error('Database tidak tersedia.');
-    return;
-  }
+  if (!db) return;
 
-  let transactions = await db.transactions.toArray();
+  const allTransactions = await db.transactions.toArray();
+  allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
   const accounts = await db.accounts.toArray();
   const accountMap = Object.fromEntries(accounts.map(a => [a.id, a]));
 
   const container = document.getElementById('transaction-list');
   container.innerHTML = '';
-  transactions.sort((a, b) => b.id - a.id);
-  const groups = new Map();
 
-  for (const trx of transactions) {
-    const date = new Date(trx.date);
-    const displayDateKey = date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-    const groupSortDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const totalPages = Math.ceil(allTransactions.length / TRANSACTIONS_PER_PAGE);
+  const startIdx = (currentTransactionPage - 1) * TRANSACTIONS_PER_PAGE;
+  const endIdx = startIdx + TRANSACTIONS_PER_PAGE;
+  const transactions = allTransactions.slice(startIdx, endIdx);
 
-    if (!groups.has(displayDateKey)) {
-      groups.set(displayDateKey, {
-        sortValue: groupSortDate,
-        transactions: []
-      });
-    }
-    groups.get(displayDateKey).transactions.push(trx);
+  const fullDailyTotals = {};
+  for (const trx of allTransactions) {
+    const dateKey = new Date(trx.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    if (!fullDailyTotals[dateKey]) fullDailyTotals[dateKey] = 0;
+    if (trx.type === 'income') fullDailyTotals[dateKey] += trx.amount;
+    else if (trx.type === 'expense') fullDailyTotals[dateKey] -= trx.amount;
   }
 
-  const sortedGroupKeys = Array.from(groups.keys()).sort((keyA, keyB) => {
-    const groupA = groups.get(keyA);
-    const groupB = groups.get(keyB);
-    return groupB.sortValue - groupA.sortValue;
-  });
+  const groups = new Map();
+  for (const trx of transactions) {
+    const date = new Date(trx.date);
+    const dateKey = date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const groupSortKey = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 
-  for (const dateStr of sortedGroupKeys) {
-    const groupData = groups.get(dateStr);
-    const trxList = groupData.transactions;
+    if (!groups.has(dateKey)) {
+      groups.set(dateKey, { sortValue: groupSortKey, transactions: [] });
+    }
+    groups.get(dateKey).transactions.push(trx);
+  }
 
+  const sortedDates = [...groups.entries()].sort((a, b) => b[1].sortValue - a[1].sortValue);
+
+  for (const [dateStr, group] of sortedDates) {
     const section = document.createElement('div');
     section.className = 'space-y-1 mt-2';
 
-    let total = 0;
-    for (const trx of trxList) {
-      if (trx.type !== 'transfer') {
-        total += trx.type === 'expense' ? -trx.amount : trx.amount;
-      }
-    }
-
-    const totalText = `Σ ${total < 0 ? '-' : '+'} ${formatCurrency(total)}`;
+    const total = fullDailyTotals[dateStr] || 0;
+    const totalFormatted = `Σ ${total < 0 ? '-' : '+'} ${formatCurrency(Math.abs(total))}`;
     const totalClass = total < 0 ? 'text-red-600' : 'text-green-600';
 
     const groupHeader = `
       <div class="flex items-center justify-between border-b border-gray-300 pb-1">
         <span class="text-sm font-medium text-gray-700">${dateStr}</span>
-        <span class="text-sm font-semibold ${totalClass}">${totalText}</span>
-      </div>
-    `;
+        <span class="text-sm font-semibold ${totalClass}">${totalFormatted}</span>
+      </div>`;
 
-    const trxHtml = trxList.map(trx => {
+    const trxHtml = group.transactions.map(trx => {
       const acc = accountMap[trx.accountId];
       const toAcc = trx.toAccountId ? accountMap[trx.toAccountId] : null;
       const time = new Date(trx.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
       const amount = formatCurrency(trx.amount);
       const amountClass = trx.type === 'expense' ? 'text-red-600' : 'text-green-600';
 
-      let labelHtml;
-
-      if (trx.type === 'transfer') {
-        const fromAccountName = acc?.name || 'Unknown';
-        const toAccountName = toAcc?.name || 'Unknown';
-        const fromColors = getTailwindColorClasses(acc?.color);
-        const toColors = getTailwindColorClasses(toAcc?.color);
-
-        labelHtml = `
-          <div class="inline-flex items-center gap-1 py-0.5 rounded text-xs">
-            <span class="${fromColors.bg} ${fromColors.text} px-2 py-0.5 rounded">${fromAccountName}</span>
-            <i class="fa-solid fa-arrow-right text-gray-500 mx-1"></i>
-            <span class="${toColors.bg} ${toColors.text} px-2 py-0.5 rounded">${toAccountName}</span>
-          </div>
-        `;
-      } else {
-        const singleAccountName = acc?.name || 'Unknown';
-        const singleAccountColors = getTailwindColorClasses(acc?.color);
-        labelHtml = `<div class="inline-flex items-center px-2 py-0.5 ${singleAccountColors.bg} ${singleAccountColors.text} text-xs rounded">${singleAccountName}</div>`;
-      }
+      const labelHtml = trx.type === 'transfer'
+        ? `<div class="inline-flex items-center gap-1 text-xs">
+            <span class="${getTailwindColorClasses(acc?.color).bg} ${getTailwindColorClasses(acc?.color).text} px-2 py-0.5 rounded">${acc?.name}</span>
+            <i class="fa-solid fa-arrow-right text-gray-500"></i>
+            <span class="${getTailwindColorClasses(toAcc?.color).bg} ${getTailwindColorClasses(toAcc?.color).text} px-2 py-0.5 rounded">${toAcc?.name}</span>
+          </div>`
+        : `<div class="inline-flex items-center text-xs px-2 py-0.5 ${getTailwindColorClasses(acc?.color).bg} ${getTailwindColorClasses(acc?.color).text} rounded">${acc?.name}</div>`;
 
       return `
-        <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition-colors duration-150 cursor-pointer" data-transaction-id="${trx.id}">
-          <div class="flex justify-between items-start px-0 transition-transform duration-150 hover:scale-[0.96] active:scale-[0.96]">
-            <div class="space-y-1">
+        <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition cursor-pointer" data-transaction-id="${trx.id}">
+          <div class="flex justify-between items-start">
+            <div>
               <p class="text-sm font-medium text-gray-800">${trx.description}</p>
               ${labelHtml}
             </div>
@@ -318,20 +303,29 @@ async function renderTransactions() {
     container.appendChild(section);
   }
 
-  const transactionItems = container.querySelectorAll('[data-transaction-id]');
-  transactionItems.forEach(item => {
-    item.addEventListener('click', async (event) => {
-      const transactionId = parseInt(item.dataset.transactionId);
-      const transactionToEdit = await db.transactions.get(transactionId);
-
-      if (transactionToEdit) {
-        const accountsWithBalances = await calculateAccountBalances();
-        openTransactionModal(accountsWithBalances, transactionToEdit);
-      } else {
-        window.showCustomAlert('Transaksi tidak ditemukan.', 'error');
-      }
+  container.querySelectorAll('[data-transaction-id]').forEach(item => {
+    item.addEventListener('click', async () => {
+      const trxId = parseInt(item.dataset.transactionId);
+      const trx = await db.transactions.get(trxId);
+      const balances = await calculateAccountBalances();
+      if (trx) openTransactionModal(balances, trx);
+      else window.showCustomAlert('Transaksi tidak ditemukan.', 'error');
     });
   });
+
+  const paginationSection = document.getElementById('pagination-controls');
+  paginationSection.innerHTML = '';
+  if (totalPages > 1) {
+    const controls = createPaginationControls({
+      currentPage: currentTransactionPage,
+      totalPages,
+      onPageChange: (newPage) => {
+        currentTransactionPage = newPage;
+        renderTransactions();
+      }
+    });
+    paginationSection.appendChild(controls);
+  }
 }
 
 async function renderTotalBalance() {
@@ -398,16 +392,14 @@ async function convertCurrencyInDatabase(newCurrencySetting) {
     await tx.settings.put({ key: 'main-currency', value: newCurrencySetting });
     window.currentCurrencySetting = newCurrencySetting;
   });
-
-  console.log(`Currency data converted using rate ${liveRate}`);
 }
 
 window.addEventListener('dataChanged', async () => {
-  console.log("Global dataChanged event received. Re-rendering UI.");
   await window.fetchCurrencySetting();
   await window.renderAccounts();
   await window.renderTotalBalance();
   await window.renderTransactions();
+  await renderIncomeExpenseChart();
 });
 
 window.renderTransactions = renderTransactions;
