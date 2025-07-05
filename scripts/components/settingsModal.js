@@ -1,14 +1,9 @@
 import { openConfirmConversionModal } from './confirmConversionModal.js';
 import { openConfirmImportModal } from './confirmImportModal.js';
+import { openConfirmResetModal } from './confirmResetModal.js';
 import { getTranslation } from '../i18n.js';
 
 export async function openSettingsModal() {
-  const db = window.db;
-  if (!db) {
-    window.showCustomAlert('database_not_available', 'error');
-    return;
-  }
-
   const wrapper = document.createElement('div');
   wrapper.id = 'settings-modal';
   wrapper.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
@@ -63,6 +58,10 @@ export async function openSettingsModal() {
                   class="px-5 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-100 active:bg-gray-100 cursor-pointer">
             ${getTranslation('import')}
           </button>
+          <button id="reset-data-btn"
+                  class="px-5 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50 active:bg-gray-100 cursor-pointer">
+            ${getTranslation('reset')}
+          </button>
         </div>
       </div>
 
@@ -83,6 +82,7 @@ export async function openSettingsModal() {
   const exportDataBtn = modal.querySelector('#export-data-btn');
   const importDataBtn = modal.querySelector('#import-data-btn');
   const importFileInput = modal.querySelector('#import-file-input');
+  const resetDataBtn = modal.querySelector('#reset-data-btn');
   const saveSettingsBtn = modal.querySelector('#save-settings-btn');
   const cancelSettingsBtn = modal.querySelector('#cancel-settings-btn');
 
@@ -218,6 +218,34 @@ export async function openSettingsModal() {
     };
 
     reader.readAsText(file);
+  });
+
+  resetDataBtn.addEventListener('click', () => {
+    wrapper.classList.add('hidden');
+
+    openConfirmResetModal(
+      async () => {
+        try {
+          const resetSuccess = await window.performFullReset();
+
+          if (resetSuccess) {
+            // window.showCustomAlert('reset_success', 'success');
+            wrapper.remove();
+            location.reload();
+          } else {
+            window.showCustomAlert('failed_to_reset', 'error');
+            wrapper.classList.remove('hidden');
+          }
+        } catch (error) {
+          console.error('Error initiating full database reset:', error);
+          window.showCustomAlert('failed_to_reset', 'error');
+          wrapper.classList.remove('hidden');
+        }
+      },
+      () => {
+        wrapper.classList.remove('hidden');
+      }
+    );
   });
 
   saveSettingsBtn.addEventListener('click', async () => {
