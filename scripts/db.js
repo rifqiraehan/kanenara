@@ -16,15 +16,19 @@ async function seedDefaultAccounts() {
   const count = await db.accounts.count();
   if (count === 0) {
     await db.accounts.bulkAdd(defaultAccounts);
-    console.log('[Seed] Akun default berhasil ditambahkan.');
   }
 }
 
 async function seedDefaultSettings() {
   const currencySetting = await db.settings.get('main-currency');
+  const languageSetting = await db.settings.get('app-language');
+
   if (currencySetting === undefined) {
     await db.settings.put({ key: 'main-currency', value: 0 });
-    console.log('[Seed] Pengaturan mata uang default ditambahkan (IDR).');
+  }
+  
+  if (languageSetting === undefined) {
+    await db.settings.put({ key: 'app-language', value: 'id' });
   }
 }
 
