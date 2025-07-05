@@ -1,15 +1,16 @@
 import { openConfirmDeleteModal } from './confirmModal.js';
+import { getTranslation } from '../i18n.js';
 
 export async function openAccountFormModal(accountToEdit = null, onSaveCallback = null, onDeleteCallback = null, onCancelCallback = null) {
   const db = window.db;
   if (!db) {
-    window.showCustomAlert('Database tidak tersedia.', 'error');
+    window.showCustomAlert('database_not_available', 'error');
     if (onCancelCallback) onCancelCallback();
     return;
   }
 
   const isEditMode = accountToEdit !== null;
-  const modalTitle = isEditMode ? 'Edit Account' : 'Add Account';
+  const modalTitle = isEditMode ? getTranslation('edit_account') : getTranslation('add_account');
 
   let balanceToDisplay = 0;
   if (isEditMode && accountToEdit) {
@@ -40,12 +41,12 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
       <h2 class="text-xl font-semibold text-center">${modalTitle}</h2>
 
       <div>
-        <label class="text-sm font-medium">Account Name:</label>
-        <input type="text" id="account-name-input" class="w-full mt-1 px-3 py-2 border rounded text-sm" placeholder="e.g., Bank Account" value="${state.name}" />
+        <label class="text-sm font-medium">${getTranslation('account_name')}</label>
+        <input type="text" id="account-name-input" class="w-full mt-1 px-3 py-2 border rounded text-sm" placeholder="${getTranslation('account_name_placeholder')}" value="${state.name}" />
       </div>
 
       <div>
-        <label class="text-sm font-medium">Balance:</label>
+        <label class="text-sm font-medium">${getTranslation('balance')}</label>
         <div class="relative">
           <span class="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-semibold text-gray-500 ml-3" id="currency-symbol-input">${window.currentCurrencySetting === 1 ? '$' : 'Rp'}</span>
           <input type="number" id="initial-balance-input" class="w-full text-center text-xl font-semibold text-gray-500 py- focus:outline-none focus:border-gray-400 pl-16 pr-3" value="${state.initialBalance}" />
@@ -53,12 +54,12 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
       </div>
 
       <div>
-        <label class="text-sm font-medium mb-2 block">Color:</label>
+        <label class="text-sm font-medium mb-2 block">${getTranslation('color')}</label>
         <div id="color-palette" class="flex flex-wrap gap-2 justify-center">
           ${colorPalette.map(color => {
     const colorClass = `bg-${color}-500`;
     return `
-              <button type="button" class="w-8 h-8 rounded-full ${colorClass} focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-transform hover:scale-110" data-color="${color}" aria-label="Select ${color} color"></button>
+              <button type="button" class="w-8 h-8 rounded-full ${colorClass} focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-transform hover:scale-110" data-color="${color}" aria-label="${getTranslation('select_color', { color: color })}"></button>
             `;
   }).join('')}
         </div>
@@ -66,10 +67,10 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
 
       <div class="flex justify-center gap-4 pt-2">
         ${isEditMode ? `
-          <button id="btn-remove-account" class="px-6 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 active:bg-red-600 cursor-pointer">Remove</button>
+          <button id="btn-remove-account" class="px-6 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 active:bg-red-600 cursor-pointer">${getTranslation('remove')}</button>
         ` : ''}
-        <button id="btn-save-account" class="px-6 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 active:bg-green-600 cursor-pointer">Save</button>
-        <button id="btn-cancel-account" class="px-6 py-2 border border-gray-400 text-gray-600 rounded-lg text-sm hover:bg-gray-100 active:bg-gray-100 cursor-pointer">Cancel</button>
+        <button id="btn-save-account" class="px-6 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 active:bg-green-600 cursor-pointer">${getTranslation('save')}</button>
+        <button id="btn-cancel-account" class="px-6 py-2 border border-gray-400 text-gray-600 rounded-lg text-sm hover:bg-gray-100 active:bg-gray-100 cursor-pointer">${getTranslation('cancel')}</button>
       </div>
     </div>
   `;
@@ -109,7 +110,7 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
       type: delta > 0 ? 'income' : 'expense',
       amount: Math.abs(delta),
       accountId,
-      description: 'Update Balance',
+      description: getTranslation('update_balance'),
       date: new Date()
     });
   }
@@ -119,11 +120,11 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
     const newBalance = parseFloat(initialBalanceInput.value);
 
     if (!name) {
-      window.showCustomAlert('Nama akun tidak boleh kosong.', 'warning');
+      window.showCustomAlert('account_name_empty_warning', 'warning');
       return;
     }
     if (isNaN(newBalance)) {
-      window.showCustomAlert('Saldo tidak valid.', 'warning');
+      window.showCustomAlert('invalid_balance_warning', 'warning');
       return;
     }
 
@@ -146,14 +147,14 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
           await createBalanceAdjustmentTransaction(accountToEdit.id, delta);
         }
 
-        window.showCustomAlert('Akun berhasil diperbarui!', 'success');
+        window.showCustomAlert('account_updated_success', 'success');
       } else {
         await db.accounts.add({
           name,
           color: state.color,
           initialBalance: newBalance
         });
-        window.showCustomAlert('Akun berhasil ditambahkan!', 'success');
+        window.showCustomAlert('account_added_success', 'success');
       }
 
       const event = new CustomEvent('dataChanged', {
@@ -171,7 +172,7 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
       }
     } catch (error) {
       console.error("Error saving account:", error);
-      window.showCustomAlert('Gagal menyimpan akun.', 'error');
+      window.showCustomAlert('failed_to_save_account', 'error');
     }
   });
 
@@ -185,7 +186,7 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
       wrapper.classList.add('hidden');
 
       openConfirmDeleteModal(
-        `Apakah Anda yakin ingin menghapus akun "${accountToEdit.name}"? Tindakan ini juga akan menghapus semua transaksi yang terkait.`,
+        getTranslation('confirm_delete_account_message', { accountName: accountToEdit.name }),
         async () => {
           try {
             await db.accounts.delete(accountToEdit.id);
@@ -200,18 +201,18 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
             });
             window.dispatchEvent(event);
 
-            window.showCustomAlert('Akun berhasil dihapus!', 'success');
+            window.showCustomAlert('account_deleted_success', 'success');
             wrapper.remove();
             if (onDeleteCallback) await onDeleteCallback();
           } catch (error) {
             console.error("Error deleting account:", error);
-            window.showCustomAlert('Gagal menghapus akun.', 'error');
+            window.showCustomAlert('failed_to_delete_account', 'error');
             wrapper.classList.remove('hidden');
           }
         },
         () => {
           wrapper.classList.remove('hidden');
-          window.showCustomAlert('Penghapusan akun dibatalkan.', 'info', 1500);
+          window.showCustomAlert('account_deletion_cancelled', 'info', 1500);
         }
       );
     });

@@ -1,9 +1,10 @@
 import { openAccountFormModal } from './accountFormModal.js';
+import { getTranslation } from '../i18n.js';
 
 export async function openAccountModal(accountsWithBalances) {
   const db = window.db;
   if (!db) {
-    window.showCustomAlert('Database tidak tersedia.', 'error');
+    window.showCustomAlert('database_not_available', 'error');
     return;
   }
 
@@ -13,14 +14,14 @@ export async function openAccountModal(accountsWithBalances) {
 
   const renderAccountList = (accounts) => {
     return accounts.map(acc => {
-      const colors = getTailwindColorClasses(acc.color);
+      const colors = window.getTailwindColorClasses(acc.color);
       return `
         <div class="flex items-center justify-between p-3 rounded-lg ${colors.bg} active:scale-102 hover:scale-102 transition cursor-pointer" data-account-id="${acc.id}">
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 ${colors.colorDot} rounded"></div>
             <span class="text-sm font-medium">${acc.name}</span>
           </div>
-          <span class="text-sm font-medium">${formatCurrency(acc.balance)}</span>
+          <span class="text-sm font-medium">${window.formatCurrency(acc.balance)}</span>
         </div>
       `;
     }).join('');
@@ -28,7 +29,7 @@ export async function openAccountModal(accountsWithBalances) {
 
   wrapper.innerHTML = `
     <div class="bg-white w-80 max-w-md rounded-2xl p-6 space-y-5 shadow-xl relative">
-      <h2 class="text-xl font-semibold text-center text-gray-800">Accounts</h2>
+      <h2 class="text-xl font-semibold text-center text-gray-800">${getTranslation('accounts')}</h2>
 
       <div class="space-y-2" id="modal-account-list-container">
         ${renderAccountList(accountsWithBalances)}
@@ -36,10 +37,10 @@ export async function openAccountModal(accountsWithBalances) {
 
       <div class="flex flex-col items-center gap-2 pt-2">
         <button id="add-new-account-btn" class="w-full px-6 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 active:bg-blue-600 cursor-pointer">
-          + Add New Account
+          ${getTranslation('add_new_account')}
         </button>
         <button id="close-account-modal-btn" class="w-full px-6 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-100 active:bg-gray-100 cursor-pointer">
-          Close
+          ${getTranslation('close')}
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 let chartInstance = null;
+import { getTranslation } from '../i18n.js';
 
 export async function renderIncomeExpenseChart() {
   const db = window.db;
@@ -9,7 +10,7 @@ export async function renderIncomeExpenseChart() {
 
   for (const trx of transactions) {
     const date = new Date(trx.date);
-    const dateKey = date.toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' });
+    const dateKey = date.toLocaleDateString(window.currentLanguage === 'id' ? 'id-ID' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
     if (!grouped[dateKey]) {
       grouped[dateKey] = { income: 0, expense: 0 };
@@ -36,7 +37,7 @@ export async function renderIncomeExpenseChart() {
     type: 'line',
     data: {
       datasets: [{
-        label: 'Balance',
+        label: getTranslation('balance_label'),
         data: data,
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -53,8 +54,8 @@ export async function renderIncomeExpenseChart() {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            title: ctx => `Tanggal: ${ctx[0].label}`,
-            label: ctx => `Saldo: ${formatCurrency(ctx.parsed.y)}`
+            title: ctx => `${getTranslation('date_label')} ${ctx[0].label}`,
+            label: ctx => `${getTranslation('balance_label')} ${formatCurrency(ctx.parsed.y)}`
           }
         }
       },
@@ -79,8 +80,15 @@ export async function renderIncomeExpenseChart() {
 }
 
 function shortenNumber(num) {
-  if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + ' M';
-  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + ' Jt';
-  if (num >= 1_000) return (num / 1_000).toFixed(0) + ' rb';
+  if (window.currentLanguage === 'id') {
+    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + ' M';
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + ' Jt';
+    if (num >= 1_000) return (num / 1_000).toFixed(0) + ' rb';
+  } else {
+    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + ' B';
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + ' M';
+    if (num >= 1_000) return (num / 1_000).toFixed(0) + ' K';
+  }
   return num;
 }
+

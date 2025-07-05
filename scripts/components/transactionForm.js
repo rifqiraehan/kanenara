@@ -1,16 +1,17 @@
 import { openConfirmDeleteModal } from '../components/confirmModal.js';
+import { getTranslation } from '../i18n.js';
 
 export async function openTransactionModal(accountsWithBalances = [], transactionToEdit = null) {
   const db = window.db;
   if (!db) {
-    window.showCustomAlert('Database tidak tersedia.', 'error');
+    window.showCustomAlert('database_not_available', 'error');
     return;
   }
 
   const accounts = accountsWithBalances.length > 0 ? accountsWithBalances : await window.calculateAccountBalances();
 
   const isEditMode = transactionToEdit !== null;
-  const modalTitle = isEditMode ? 'Edit Transaction' : 'Add Transaction';
+  const modalTitle = isEditMode ? getTranslation('edit_transaction') : getTranslation('add_transaction');
 
   let state = {
     type: isEditMode ? transactionToEdit.type : 'expense',
@@ -50,38 +51,43 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
         clip-rule="evenodd"
       ></path>
     </svg>
-    Total Balance: ${formattedBalanceString}
+    Total ${getTranslation('balance_label')} ${formattedBalanceString}
   `;
+
+  const fontSizeClass = window.currentLanguage === 'en' ? 'text-lg' : 'text-md';
 
   wrapper.innerHTML = `
     <div class="bg-white w-80 max-w-md rounded-2xl p-6 space-y-5 shadow-xl relative">
-      <h2 class="text-xl font-semibold text-center">${modalTitle}</h2> <div class="flex justify-center gap-4">
+      <h2 class="text-xl font-semibold text-center">${modalTitle}</h2>
+      <div class="flex justify-center gap-4">
         ${['income', 'expense', 'transfer'].map(type => `
-          <button data-tab="${type}" class="tab-btn text-lg font-medium ${type === state.type ? 'bg-gray-200 rounded-full px-3' : ''} cursor-pointer"> ${type.charAt(0).toUpperCase() + type.slice(1)}
+          <button data-tab="${type}" class="tab-btn ${fontSizeClass} font-medium ${type === state.type ? 'bg-gray-200 rounded-full px-3' : ''} cursor-pointer">
+            ${getTranslation(type)}
           </button>
         `).join('')}
       </div>
 
       <div>
-        <label class="text-sm font-medium">Date & Time:</label>
+        <label class="text-sm font-medium">${getTranslation('date_and_time')}</label>
         <input type="datetime-local" value="${formattedDateTime}" class="w-full mt-1 px-3 py-2 border rounded text-sm" id="input-date" />
       </div>
 
       <div>
-        <label class="text-sm font-medium">From Account:</label>
+        <label class="text-sm font-medium">${getTranslation('from_account')}</label>
         <select id="from-account" class="w-full mt-1 px-3 py-2 border rounded text-sm">
           ${accounts.map(a => `<option value="${a.id}" ${Number(a.id) === Number(state.fromAccountId) ? 'selected' : ''}>${a.name}</option>`).join('')}
         </select>
         <p id="from-account-balance-display" class="flex items-center mt-2 text-xs text-slate-500">
-          </p>
+        </p>
       </div>
 
-      <div id="to-account-section" class="${state.type === 'transfer' ? '' : 'hidden'}"> <label class="text-sm font-medium">To Account:</label>
+      <div id="to-account-section" class="${state.type === 'transfer' ? '' : 'hidden'}">
+        <label class="text-sm font-medium">${getTranslation('to_account')}</label>
         <select id="to-account" class="w-full mt-1 px-3 py-2 border rounded text-sm">
           ${accounts.map(a => `<option value="${a.id}" ${Number(a.id) === Number(state.toAccountId) ? 'selected' : ''}>${a.name}</option>`).join('')}
         </select>
         <p id="to-account-balance-display" class="flex items-center mt-2 text-xs text-slate-500">
-          </p>
+        </p>
       </div>
 
       <div class="w-full max-w-md mx-auto">
@@ -94,7 +100,8 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
               class="w-full text-center text-4xl font-semibold text-gray-800 py- focus:outline-none focus:border-blue-500 pl-16 pr-3"
               placeholder="0"
               aria-label="Amount"
-              value="${state.amount || ''}" ></div>
+              value="${state.amount || ''}" >
+          </div>
         </div>
 
         <div class="mb-4">
@@ -103,16 +110,18 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
             type="text"
             id="input-note"
             class="w-full text-center text-lg text-gray-700 py-2 focus:outline-none placeholder-gray-500"
-            placeholder="add description..."
+            placeholder="${getTranslation('add_description_placeholder')}"
             aria-label="Description"
-            value="${state.note || ''}" ></div>
+            value="${state.note || ''}" >
+        </div>
       </div>
 
       <div class="flex justify-center gap-4">
-        ${isEditMode ? ` <button id="btn-remove" class="px-6 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 active:bg-red-600 cursor-pointer">Remove</button>
+        ${isEditMode ? `
+          <button id="btn-remove" class="px-6 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 active:bg-red-600 cursor-pointer">${getTranslation('remove')}</button>
         ` : ''}
-        <button id="btn-save" class="px-6 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 active:bg-green-600 cursor-pointer">Save</button>
-        <button id="btn-cancel" class="px-6 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-100 active:bg-gray-100 cursor-pointer">Cancel</button>
+        <button id="btn-save" class="px-6 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 active:bg-green-600 cursor-pointer">${getTranslation('save')}</button>
+        <button id="btn-cancel" class="px-6 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-100 active:bg-gray-100 cursor-pointer">${getTranslation('cancel')}</button>
       </div>
     </div>
   `;
@@ -189,7 +198,7 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
     const finalDateTimeForStorage = baseDate.toISOString();
 
     if (isNaN(amount) || amount <= 0) {
-      window.showCustomAlert('Jumlah tidak valid.', 'warning');
+      window.showCustomAlert('invalid_amount_warning', 'warning');
       return;
     }
 
@@ -205,10 +214,10 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
     if (isEditMode) {
       transactionData.id = transactionToEdit.id;
       await db.transactions.put(transactionData);
-      window.showCustomAlert('Transaksi berhasil diperbarui!', 'success');
+      window.showCustomAlert('transaction_updated_success', 'success');
     } else {
       await db.transactions.add(transactionData);
-      window.showCustomAlert('Transaksi berhasil ditambahkan!', 'success');
+      window.showCustomAlert('transaction_added_success', 'success');
     }
 
     window.dispatchEvent(new CustomEvent('dataChanged'));
@@ -221,17 +230,17 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
       wrapper.classList.add('hidden');
 
       openConfirmDeleteModal(
-        'Apakah Anda yakin ingin menghapus transaksi ini?',
+        getTranslation('confirm_delete_transaction_message'),
         async () => {
           try {
             await db.transactions.delete(transactionToEdit.id);
-            window.showCustomAlert('Transaksi berhasil dihapus!', 'success');
+            window.showCustomAlert('transaction_deleted_success', 'success');
 
             window.dispatchEvent(new CustomEvent('dataChanged'));
             wrapper.remove();
           } catch (error) {
             console.error("Error deleting transaction:", error);
-            window.showCustomAlert('Gagal menghapus transaksi.', 'error');
+            window.showCustomAlert('failed_to_delete_transaction', 'error');
             wrapper.classList.remove('hidden');
           }
         },
