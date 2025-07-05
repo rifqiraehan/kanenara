@@ -212,7 +212,7 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
         },
         () => {
           wrapper.classList.remove('hidden');
-          window.showCustomAlert('account_deletion_cancelled', 'info', 1500);
+          // window.showCustomAlert('account_deletion_cancelled', 'info', 1500);
         }
       );
     });
