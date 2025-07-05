@@ -24,12 +24,12 @@
 
     <main class="max-w-xl mx-auto px-4 py-6 space-y-6">
       <section class="text-center">
-        <h2 class="text-sm font-medium text-gray-500">Total Balance</h2>
+        <h2 class="text-sm font-medium text-gray-500" data-i18n="total_balance_title">Total Balance</h2>
         <p class="text-3xl font-bold text-gray-900"></p>
       </section>
 
       <section class="bg-gray-100 rounded-xl p-4">
-        <h3 class="text-lg font-semibold text-gray-600 mb-2 text-center">Daily Flow</h3>
+        <h3 class="text-lg font-semibold text-gray-600 mb-2 text-center" data-i18n="daily_flow_title">Daily Flow</h3>
         <div class="relative h-64">
           <canvas id="incomeExpenseChart"></canvas>
         </div>
@@ -40,29 +40,29 @@
           <button data-action="account-menu" class="w-12 h-12 flex items-center justify-center rounded-full bg-yellow-400 text-white shadow hover:scale-105 transition cursor-pointer">
             <i class="fas fa-wallet"></i>
           </button>
-          <span class="tooltip">Account</span>
+          <span class="tooltip" data-i18n="account_menu_tooltip">Account</span>
         </div>
         <div class="relative group button-group flex flex-col items-center">
           <button data-action="add-transaction" class="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white shadow hover:scale-105 transition cursor-pointer">
             <i class="fas fa-plus"></i>
           </button>
-          <span class="tooltip">Add Transaction</span>
+          <span class="tooltip" data-i18n="add_transaction_tooltip">Add Transaction</span>
         </div>
         <div class="relative group button-group flex flex-col items-center">
           <button data-action="settings-menu" class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-500 text-white shadow hover:scale-105 transition cursor-pointer">
             <i class="fas fa-gear"></i>
           </button>
-          <span class="tooltip">Settings</span>
+          <span class="tooltip" data-i18n="settings_menu_tooltip">Settings</span>
         </div>
       </section>
 
       <section class="space-y-3" id="account-section">
-        <h3 class="text-lg font-semibold text-gray-600">Accounts</h3>
+        <h3 class="text-lg font-semibold text-gray-600" data-i18n="accounts_section_title">Accounts</h3>
         <div class="space-y-2" id="account-list"></div>
       </section>
 
       <section class="space-y-3" id="transaction-section">
-        <h3 class="text-lg font-semibold text-gray-600">Transactions</h3>
+        <h3 class="text-lg font-semibold text-gray-600" data-i18n="transactions_section_title">Transactions</h3>
         <div id="transaction-list"></div>
         <div id="pagination-controls" class="mt-3"></div>
       </section>
