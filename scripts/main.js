@@ -14,6 +14,18 @@ const TRANSACTIONS_PER_PAGE = 10;
 window.getTranslation = getTranslation;
 window.currentLanguage = currentLanguage;
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('../service-worker.js')
+      .then((registration) => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      })
+      .catch((error) => {
+        console.log('ServiceWorker registration failed: ', error);
+      });
+  });
+}
+
 function showCustomAlert(messageKey, type = 'success', duration = 3000) {
 
   const message = getTranslation(messageKey);
