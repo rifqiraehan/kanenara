@@ -33,7 +33,7 @@ Kanenara adalah aplikasi pelacak keuangan yang dirancang untuk membantu pengguna
 ## Setup instructions
 1. Clone repository ini:
    ```bash
-   git clone https://github.com/username/kanenara.git
+   git clone https://github.com/rifqiraehan/kanenara.git
    ```
 2. Buka file `index.html` di browser untuk menjalankan aplikasi.
 3. Pastikan koneksi internet tersedia untuk memuat library eksternal seperti Dexie.js dan Chart.js.
