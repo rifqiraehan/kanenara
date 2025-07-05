@@ -70,7 +70,7 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
       <div>
         <label class="text-sm font-medium">From Account:</label>
         <select id="from-account" class="w-full mt-1 px-3 py-2 border rounded text-sm">
-          ${accounts.map(a => `<option value="${a.id}" ${a.id === state.fromAccountId ? 'selected' : ''}>${a.name}</option>`).join('')}
+          ${accounts.map(a => `<option value="${a.id}" ${Number(a.id) === Number(state.fromAccountId) ? 'selected' : ''}>${a.name}</option>`).join('')}
         </select>
         <p id="from-account-balance-display" class="flex items-center mt-2 text-xs text-slate-500">
           </p>
@@ -78,7 +78,7 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
 
       <div id="to-account-section" class="${state.type === 'transfer' ? '' : 'hidden'}"> <label class="text-sm font-medium">To Account:</label>
         <select id="to-account" class="w-full mt-1 px-3 py-2 border rounded text-sm">
-          ${accounts.map(a => `<option value="${a.id}" ${a.id === state.toAccountId ? 'selected' : ''}>${a.name}</option>`).join('')}
+          ${accounts.map(a => `<option value="${a.id}" ${Number(a.id) === Number(state.toAccountId) ? 'selected' : ''}>${a.name}</option>`).join('')}
         </select>
         <p id="to-account-balance-display" class="flex items-center mt-2 text-xs text-slate-500">
           </p>
@@ -211,10 +211,7 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
       window.showCustomAlert('Transaksi berhasil ditambahkan!', 'success');
     }
 
-    await window.fetchCurrencySetting();
-    window.renderTransactions();
-    window.renderTotalBalance();
-    window.renderAccounts();
+    window.dispatchEvent(new CustomEvent('dataChanged'));
 
     wrapper.remove();
   });
@@ -230,10 +227,7 @@ export async function openTransactionModal(accountsWithBalances = [], transactio
             await db.transactions.delete(transactionToEdit.id);
             window.showCustomAlert('Transaksi berhasil dihapus!', 'success');
 
-            await window.fetchCurrencySetting();
-            window.renderTransactions();
-            window.renderTotalBalance();
-            window.renderAccounts();
+            window.dispatchEvent(new CustomEvent('dataChanged'));
             wrapper.remove();
           } catch (error) {
             console.error("Error deleting transaction:", error);
