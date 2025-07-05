@@ -4,12 +4,20 @@ import { openAccountFormModal } from './components/accountFormModal.js';
 import { openSettingsModal } from './components/settingsModal.js';
 import { renderIncomeExpenseChart } from './components/graph.js';
 import { createPaginationControls } from './components/pagination.js';
+import { getTranslation } from './i18n.js';
 
 let currentCurrencySetting = 0;
+let currentLanguage = 'id';
 let currentTransactionPage = 1;
 const TRANSACTIONS_PER_PAGE = 10;
 
-function showCustomAlert(message, type = 'success', duration = 3000) {
+window.getTranslation = getTranslation;
+window.currentLanguage = currentLanguage;
+
+function showCustomAlert(messageKey, type = 'success', duration = 3000) {
+
+  const message = getTranslation(messageKey);
+
   let iconHtml = '';
   let borderColorClass = '';
   let textColorClass = '';
@@ -36,6 +44,7 @@ function showCustomAlert(message, type = 'success', duration = 3000) {
       borderColorClass = 'border-yellow-300';
       textColorClass = 'text-yellow-900';
       break;
+    case 'info':
     default:
       iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063 0l.041.02a.75.75 0 01-.063 1.063l-.041.02a.75.75 0 01-1.063 0l-.041-.02a.75.75 0 01.063-1.063zM12 7.5h.008v.008H12V7.5z" />
@@ -44,7 +53,13 @@ function showCustomAlert(message, type = 'success', duration = 3000) {
       textColorClass = 'text-gray-900';
   }
 
+  const existingAlert = document.getElementById('custom-app-alert');
+  if (existingAlert) {
+    existingAlert.remove();
+  }
+
   const outerWrapper = document.createElement('div');
+  outerWrapper.id = 'custom-app-alert';
   outerWrapper.className = `fixed top-5 left-0 right-0 z-[1000] transition-all duration-300 ease-out opacity-0 translate-y-[-20px]`;
   outerWrapper.role = 'alert';
   const alertContent = document.createElement('div');
@@ -54,11 +69,10 @@ function showCustomAlert(message, type = 'success', duration = 3000) {
     <div class="flex items-start gap-4">
       ${iconHtml}
       <div class="flex-1">
-        <strong class="font-medium ${textColorClass}">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
-        <p class="mt-0.5 text-sm text-gray-700">${message}</p>
+        <strong class="font-medium ${textColorClass}">${getTranslation(type)}</strong> <p class="mt-0.5 text-sm text-gray-700">${message}</p>
       </div>
-      <button class="-m-3 rounded-full p-1.5 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700" type="button" aria-label="Dismiss alert">
-        <span class="sr-only">Dismiss popup</span>
+      <button id="dismiss-alert-btn" class="-m-3 rounded-full p-1.5 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700" type="button" aria-label="${getTranslation('dismiss_popup')}">
+        <span class="sr-only">${getTranslation('dismiss_popup')}</span>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -74,7 +88,7 @@ function showCustomAlert(message, type = 'success', duration = 3000) {
     outerWrapper.style.transform = 'translateY(0)';
   }, 10);
 
-  const dismissButton = alertContent.querySelector('button[aria-label="Dismiss alert"]');
+  const dismissButton = outerWrapper.querySelector('#dismiss-alert-btn');
   const dismissAlert = () => {
     outerWrapper.style.opacity = '0';
     outerWrapper.style.transform = 'translateY(-20px)';
@@ -83,15 +97,26 @@ function showCustomAlert(message, type = 'success', duration = 3000) {
     }, { once: true });
   };
 
-  dismissButton.addEventListener('click', dismissAlert);
+  if (dismissButton) {
+    dismissButton.addEventListener('click', dismissAlert);
+  } else {
+      console.warn("Dismiss button not found in custom alert. Automatic dismissal will still work.");
+  }
 
   if (duration > 0) {
     setTimeout(dismissAlert, duration);
   }
 }
 
-
 window.showCustomAlert = showCustomAlert;
+window.currentCurrencySetting = currentCurrencySetting;
+
+function translateDOM() {
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.dataset.i18n;
+    element.textContent = getTranslation(key);
+  });
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   const addTransactionBtn = document.querySelector('[data-action="add-transaction"]');
@@ -119,15 +144,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (!window.db) {
-    console.error('IndexedDB tidak terdeteksi. Pastikan Dexie CDN dimuat.');
+    console.error(getTranslation('database_not_available'));
   }
 
+  await fetchAndSetLanguage();
+  translateDOM();
   renderTransactions();
   renderTotalBalance();
   await fetchCurrencySetting();
   await renderAccounts();
   await renderIncomeExpenseChart();
 });
+
+async function fetchAndSetLanguage() {
+  const setting = await db.settings.get('app-language');
+  if (setting !== undefined) {
+    currentLanguage = setting.value;
+    window.currentLanguage = currentLanguage;
+    document.documentElement.lang = currentLanguage;
+  }
+}
 
 async function fetchCurrencySetting() {
   const setting = await db.settings.get('main-currency');
@@ -138,7 +174,7 @@ async function fetchCurrencySetting() {
 }
 
 function formatCurrency(amount) {
-  const locale = 'id-ID';
+  const locale = window.currentLanguage === 'id' ? 'id-ID' : 'en-US';
   const isUSD = window.currentCurrencySetting === 1;
   const symbol = isUSD ? '$ ' : 'Rp ';
   const options = {
@@ -208,7 +244,7 @@ async function renderAccounts() {
       if (accountToEdit) {
         openAccountFormModal(accountToEdit);
       } else {
-        window.showCustomAlert('Akun tidak ditemukan.', 'error');
+        window.showCustomAlert('account_not_found', 'error');
       }
     });
 
@@ -235,7 +271,7 @@ async function renderTransactions() {
 
   const fullDailyTotals = {};
   for (const trx of allTransactions) {
-    const dateKey = new Date(trx.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const dateKey = new Date(trx.date).toLocaleDateString(window.currentLanguage === 'id' ? 'id-ID' : 'en-US', { day: '2-digit', month: 'long', year: 'numeric' });
     if (!fullDailyTotals[dateKey]) fullDailyTotals[dateKey] = 0;
     if (trx.type === 'income') fullDailyTotals[dateKey] += trx.amount;
     else if (trx.type === 'expense') fullDailyTotals[dateKey] -= trx.amount;
@@ -244,7 +280,7 @@ async function renderTransactions() {
   const groups = new Map();
   for (const trx of transactions) {
     const date = new Date(trx.date);
-    const dateKey = date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const dateKey = date.toLocaleDateString(window.currentLanguage === 'id' ? 'id-ID' : 'en-US', { day: '2-digit', month: 'long', year: 'numeric' });
     const groupSortKey = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 
     if (!groups.has(dateKey)) {
@@ -260,7 +296,8 @@ async function renderTransactions() {
     section.className = 'space-y-1 mt-2';
 
     const total = fullDailyTotals[dateStr] || 0;
-    const totalFormatted = `Σ ${total < 0 ? '-' : '+'} ${formatCurrency(Math.abs(total))}`;
+    const sign = total < 0 ? '-' : '+';
+    const totalFormatted = window.getTranslation('daily_total', { sign: sign, amount: formatCurrency(Math.abs(total)) });
     const totalClass = total < 0 ? 'text-red-600' : 'text-green-600';
 
     const groupHeader = `
@@ -272,7 +309,7 @@ async function renderTransactions() {
     const trxHtml = group.transactions.map(trx => {
       const acc = accountMap[trx.accountId];
       const toAcc = trx.toAccountId ? accountMap[trx.toAccountId] : null;
-      const time = new Date(trx.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      const time = new Date(trx.date).toLocaleTimeString(window.currentLanguage === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' });
       const amount = formatCurrency(trx.amount);
       const amountClass = trx.type === 'expense' ? 'text-red-600' : 'text-green-600';
 
@@ -284,11 +321,11 @@ async function renderTransactions() {
           </div>`
         : `<div class="inline-flex items-center text-xs px-2 py-0.5 ${getTailwindColorClasses(acc?.color).bg} ${getTailwindColorClasses(acc?.color).text} rounded">${acc?.name}</div>`;
 
-      return `
-        <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition cursor-pointer" data-transaction-id="${trx.id}">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-sm font-medium text-gray-800">${trx.description}</p>
+        return `
+        <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition-colors duration-150 cursor-pointer" data-transaction-id="${trx.id}">
+          <div class="flex justify-between items-start px-0 transition-transform duration-150 hover:scale-[0.96] active:scale-[0.96]">
+            <div class="space-y-1">
+              <p class="text-sm font-medium text-gray-800">${trx.description === 'Update Balance' ? getTranslation('update_balance') : trx.description}</p>
               ${labelHtml}
             </div>
             <div class="text-right">
@@ -309,7 +346,7 @@ async function renderTransactions() {
       const trx = await db.transactions.get(trxId);
       const balances = await calculateAccountBalances();
       if (trx) openTransactionModal(balances, trx);
-      else window.showCustomAlert('Transaksi tidak ditemukan.', 'error');
+      else window.showCustomAlert('transaction_not_found', 'error');
     });
   });
 
@@ -352,7 +389,7 @@ async function fetchExchangeRateUSDToIDR() {
     throw new Error('Exchange rate data invalid');
   } catch (err) {
     console.error('Failed to fetch exchange rate:', err);
-    window.showCustomAlert('Gagal mengambil nilai tukar USD ↔ IDR. Gunakan nilai default 16000.', 'warning');
+    window.showCustomAlert('failed_to_fetch_exchange_rate', 'warning');
 
     return 16000;
   }
@@ -400,6 +437,7 @@ window.addEventListener('dataChanged', async () => {
   await window.renderTotalBalance();
   await window.renderTransactions();
   await renderIncomeExpenseChart();
+  translateDOM();
 });
 
 window.renderTransactions = renderTransactions;
