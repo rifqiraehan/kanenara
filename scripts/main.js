@@ -225,6 +225,15 @@ async function renderAccounts() {
   const container = document.getElementById('account-list');
   container.innerHTML = '';
 
+  if (accountBalances.length === 0) {
+
+    const noAccountsMessage = document.createElement('div');
+    noAccountsMessage.className = 'text-center text-gray-500 py-4';
+    noAccountsMessage.textContent = getTranslation('no_accounts_created');
+    container.appendChild(noAccountsMessage);
+    return;
+  }
+
   for (const acc of accountBalances) {
     const colors = getTailwindColorClasses(acc.color);
     const el = document.createElement('div');
@@ -263,6 +272,19 @@ async function renderTransactions() {
 
   const container = document.getElementById('transaction-list');
   container.innerHTML = '';
+
+  const paginationSection = document.getElementById('pagination-controls');
+  paginationSection.innerHTML = '';
+
+  if (allTransactions.length === 0) {
+
+    const noTransactionsMessage = document.createElement('div');
+    noTransactionsMessage.className = 'text-center text-gray-500 py-4';
+    noTransactionsMessage.textContent = getTranslation('no_transactions_created');
+    container.appendChild(noTransactionsMessage);
+
+    return;
+  }
 
   const totalPages = Math.ceil(allTransactions.length / TRANSACTIONS_PER_PAGE);
   const startIdx = (currentTransactionPage - 1) * TRANSACTIONS_PER_PAGE;
@@ -321,7 +343,7 @@ async function renderTransactions() {
           </div>`
         : `<div class="inline-flex items-center text-xs px-2 py-0.5 ${getTailwindColorClasses(acc?.color).bg} ${getTailwindColorClasses(acc?.color).text} rounded">${acc?.name}</div>`;
 
-        return `
+      return `
         <div class="py-1 rounded-lg hover:bg-gray-100 active:bg-gray-100 transition-colors duration-150 cursor-pointer" data-transaction-id="${trx.id}">
           <div class="flex justify-between items-start px-0 transition-transform duration-150 hover:scale-[0.96] active:scale-[0.96]">
             <div class="space-y-1">
@@ -350,8 +372,6 @@ async function renderTransactions() {
     });
   });
 
-  const paginationSection = document.getElementById('pagination-controls');
-  paginationSection.innerHTML = '';
   if (totalPages > 1) {
     const controls = createPaginationControls({
       currentPage: currentTransactionPage,
