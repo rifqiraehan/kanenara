@@ -1,4 +1,5 @@
 import { openConfirmConversionModal } from './confirmConversionModal.js';
+import { openConfirmImportModal } from './confirmImportModal.js';
 
 export async function openSettingsModal() {
   const db = window.db;
@@ -98,7 +99,12 @@ export async function openSettingsModal() {
   exportDataBtn.addEventListener('click', async () => {
     try {
       const allAccounts = await db.accounts.toArray();
-      const allTransactions = await db.transactions.toArray();
+      const rawTransactions = await db.transactions.toArray();
+      const allTransactions = rawTransactions.map(trx => ({
+        ...trx,
+        accountId: trx.accountId !== undefined ? Number(trx.accountId) : undefined,
+        toAccountId: trx.toAccountId !== undefined ? Number(trx.toAccountId) : undefined
+      }));
       const allSettings = await db.settings.toArray();
 
       const dataToExport = {
@@ -147,31 +153,42 @@ export async function openSettingsModal() {
       try {
         const importedData = JSON.parse(e.target.result);
 
-        if (!importedData.accounts || !Array.isArray(importedData.accounts) ||
+        if (
+          !importedData.accounts || !Array.isArray(importedData.accounts) ||
           !importedData.transactions || !Array.isArray(importedData.transactions) ||
-          !importedData.settings || !Array.isArray(importedData.settings)) {
+          !importedData.settings || !Array.isArray(importedData.settings)
+        ) {
           window.showCustomAlert('Struktur file JSON tidak valid.', 'error');
           return;
         }
 
-        await db.transaction('rw', db.accounts, db.transactions, db.settings, async (tx) => {
-          await tx.accounts.clear();
-          await tx.transactions.clear();
-          await tx.settings.clear();
+        openConfirmImportModal(
+          async () => {
+            await db.transaction('rw', db.accounts, db.transactions, db.settings, async (tx) => {
+              await tx.accounts.clear();
+              await tx.transactions.clear();
+              await tx.settings.clear();
 
-          await tx.accounts.bulkAdd(importedData.accounts);
-          await tx.transactions.bulkAdd(importedData.transactions);
-          await tx.settings.bulkAdd(importedData.settings);
-        });
+              await tx.accounts.bulkAdd(importedData.accounts);
+              await tx.transactions.bulkAdd(importedData.transactions);
+              await tx.settings.bulkAdd(importedData.settings);
+            });
 
-        window.showCustomAlert('Data berhasil diimpor dan diperbarui!', 'success');
-        window.dispatchEvent(new CustomEvent('dataChanged'));
-        wrapper.remove();
+            window.showCustomAlert('Data berhasil diimpor dan diperbarui!', 'success');
+            window.dispatchEvent(new CustomEvent('dataChanged'));
+            wrapper.remove();
+          },
+          () => {
+            importFileInput.value = '';
+          }
+        );
+
       } catch (parseError) {
         console.error('Error parsing or importing data:', parseError);
         window.showCustomAlert('Gagal membaca atau mengimpor file data.', 'error');
       }
     };
+
     reader.readAsText(file);
   });
 
