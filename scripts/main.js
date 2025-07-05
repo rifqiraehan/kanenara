@@ -433,11 +433,17 @@ async function convertCurrencyInDatabase(newCurrencySetting) {
   if (oldSetting === newCurrencySetting) return;
 
   const liveRate = await fetchExchangeRateUSDToIDR();
+  console.log('Live Exchange Rate (1 USD to IDR):', liveRate);
+
   let multiplier;
   if (oldSetting === 0 && newCurrencySetting === 1) {
+
     multiplier = 1 / liveRate;
+    console.log('Converting IDR to USD. Multiplier (1/rate):', multiplier);
   } else if (oldSetting === 1 && newCurrencySetting === 0) {
+
     multiplier = liveRate;
+    console.log('Converting USD to IDR. Multiplier (rate):', multiplier);
   } else {
     console.warn("Unexpected currency conversion setting.");
     return;
@@ -445,17 +451,25 @@ async function convertCurrencyInDatabase(newCurrencySetting) {
 
   await db.transaction('rw', db.accounts, db.transactions, db.settings, async (tx) => {
     const accounts = await tx.accounts.toArray();
-    const updatedAccounts = accounts.map(acc => ({
-      ...acc,
-      initialBalance: parseFloat((acc.initialBalance * multiplier).toFixed(2))
-    }));
+    const updatedAccounts = accounts.map(acc => {
+
+      const newBalance = parseFloat(acc.initialBalance) * multiplier;
+      return {
+        ...acc,
+        initialBalance: parseFloat(newBalance.toFixed(2))
+      };
+    });
     await tx.accounts.bulkPut(updatedAccounts);
 
     const transactions = await tx.transactions.toArray();
-    const updatedTransactions = transactions.map(trx => ({
-      ...trx,
-      amount: parseFloat((trx.amount * multiplier).toFixed(2))
-    }));
+    const updatedTransactions = transactions.map(trx => {
+
+      const newAmount = parseFloat(trx.amount) * multiplier;
+      return {
+        ...trx,
+        amount: parseFloat(newAmount.toFixed(2))
+      };
+    });
     await tx.transactions.bulkPut(updatedTransactions);
 
     await tx.settings.put({ key: 'main-currency', value: newCurrencySetting });
