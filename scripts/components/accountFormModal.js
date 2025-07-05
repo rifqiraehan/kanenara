@@ -33,7 +33,7 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
 
   const wrapper = document.createElement('div');
   wrapper.id = 'account-form-modal';
-  wrapper.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-1000';
+  wrapper.className = 'fixed inset-0 bg-gray-500/50 backdrop-blur-sm flex items-center justify-center z-1000';
 
   wrapper.innerHTML = `
     <div class="bg-white w-80 max-w-md rounded-2xl p-6 space-y-5 shadow-xl relative">
@@ -47,8 +47,8 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
       <div>
         <label class="text-sm font-medium">Balance:</label>
         <div class="relative">
-          <span class="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-semibold text-gray-800 ml-3" id="currency-symbol-input">${window.currentCurrencySetting === 1 ? '$' : 'Rp'}</span>
-          <input type="number" id="initial-balance-input" class="w-full text-center text-xl font-semibold text-gray-800 py- focus:outline-none focus:border-blue-500 pl-16 pr-3" value="${state.initialBalance}" />
+          <span class="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-semibold text-gray-500 ml-3" id="currency-symbol-input">${window.currentCurrencySetting === 1 ? '$' : 'Rp'}</span>
+          <input type="number" id="initial-balance-input" class="w-full text-center text-xl font-semibold text-gray-500 py- focus:outline-none focus:border-gray-400 pl-16 pr-3" value="${state.initialBalance}" />
         </div>
       </div>
 
@@ -58,7 +58,7 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
           ${colorPalette.map(color => {
     const colorClass = `bg-${color}-500`;
     return `
-              <button type="button" class="w-8 h-8 rounded-full ${colorClass} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform hover:scale-110" data-color="${color}" aria-label="Select ${color} color"></button>
+              <button type="button" class="w-8 h-8 rounded-full ${colorClass} focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-transform hover:scale-110" data-color="${color}" aria-label="Select ${color} color"></button>
             `;
   }).join('')}
         </div>
@@ -69,7 +69,7 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
           <button id="btn-remove-account" class="px-6 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 active:bg-red-600 cursor-pointer">Remove</button>
         ` : ''}
         <button id="btn-save-account" class="px-6 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 active:bg-green-600 cursor-pointer">Save</button>
-        <button id="btn-cancel-account" class="px-6 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-100 active:bg-gray-100 cursor-pointer">Cancel</button>
+        <button id="btn-cancel-account" class="px-6 py-2 border border-gray-400 text-gray-600 rounded-lg text-sm hover:bg-gray-100 active:bg-gray-100 cursor-pointer">Cancel</button>
       </div>
     </div>
   `;
@@ -89,15 +89,15 @@ export async function openAccountFormModal(accountToEdit = null, onSaveCallback 
 
   const initialColorButton = colorPaletteContainer.querySelector(`button[data-color="${state.color}"]`);
   if (initialColorButton) {
-    initialColorButton.classList.add('border-2', 'border-blue-500');
+    initialColorButton.classList.add('border-3', 'border-gray-400');
   }
   initialBalanceInput.value = state.initialBalance;
 
   colorPaletteContainer.addEventListener('click', (event) => {
     const clickedButton = event.target.closest('button[data-color]');
     if (clickedButton) {
-      modal.querySelectorAll('.border-blue-500').forEach(btn => btn.classList.remove('border-2', 'border-blue-500'));
-      clickedButton.classList.add('border-2', 'border-blue-500');
+      modal.querySelectorAll('.border-gray-400').forEach(btn => btn.classList.remove('border-3', 'border-gray-400'));
+      clickedButton.classList.add('border-3', 'border-gray-400');
       state.color = clickedButton.dataset.color;
     }
   });
