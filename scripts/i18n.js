@@ -94,6 +94,16 @@ export const translations = {
     'transaction_deleted_success': 'Transaction successfully deleted!',
     'failed_to_delete_transaction': 'Failed to delete transaction.',
 
+    // Reset Modal
+    'confirm_reset_data_title': 'Confirm Data Reset',
+    'reset_warning_message': 'WARNING: This will delete ALL your data and reset the app to its initial state!',
+    'reset_confirm_question': 'Are you sure you want to delete all data and reset the application?',
+    'proceed_reset': 'Reset & Restart',
+    'reset_success': 'Application reset successfully!',
+    'failed_to_reset': 'Failed to reset application.',
+    'reset_cancelled': 'Reset cancelled.',
+    'reset': 'Reset',
+
     'total_balance_title': 'Total Balance',
     'daily_flow_title': 'Daily Balance Trend',
     'account_menu_tooltip': 'Account',
@@ -108,6 +118,8 @@ export const translations = {
     'failed_to_save_settings': 'Failed to save settings.',
     'database_not_available': 'Database not available.',
     'app_language': 'App Language',
+    'no_accounts_created': 'No accounts created yet.',
+    'no_transactions_created': 'No transactions recorded yet.',
   },
   id: {
     // General
@@ -185,7 +197,7 @@ export const translations = {
     'date_label': 'Tanggal:',
     'balance_label': 'Saldo:',
     'transaction_not_found': 'Transaksi tidak ditemukan.',
-    'update_balance': 'Perbarui Saldo',
+    'update_balance': 'Memperbarui Saldo',
 
     // Transaction Modal
     'edit_transaction': 'Edit Transaksi',
@@ -204,6 +216,16 @@ export const translations = {
     'transaction_deleted_success': 'Transaksi berhasil dihapus!',
     'failed_to_delete_transaction': 'Gagal menghapus transaksi.',
 
+    // Reset Modal
+    'confirm_reset_data_title': 'Konfirmasi Reset Data',
+    'reset_warning_message': 'PERINGATAN: Tindakan ini akan menghapus SEMUA data Anda dan mengatur ulang aplikasi ke kondisi awal!',
+    'reset_confirm_question': 'Apakah Anda yakin ingin menghapus semua data dan mengatur ulang aplikasi?',
+    'proceed_reset': 'Reset & Mulai Ulang',
+    'reset_success': 'Aplikasi berhasil direset!',
+    'failed_to_reset': 'Gagal mereset aplikasi.',
+    'reset_cancelled': 'Reset dibatalkan.',
+    'reset': 'Reset',
+
     'total_balance_title': 'Total Saldo',
     'daily_flow_title': 'Tren Saldo Harian',
     'account_menu_tooltip': 'Akun',
@@ -218,6 +240,8 @@ export const translations = {
     'failed_to_save_settings': 'Gagal menyimpan pengaturan.',
     'database_not_available': 'Database tidak tersedia.',
     'app_language': 'Bahasa Aplikasi',
+    'no_accounts_created': 'Belum ada akun yang dibuat.',
+    'no_transactions_created': 'Belum ada transaksi yang tercatat.',
   }
 };
 
