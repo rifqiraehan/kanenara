@@ -1,0 +1,484 @@
+{
+  "accounts": [
+    {
+      "name": "Bank A",
+      "initialBalance": 0,
+      "color": "blue",
+      "id": 1
+    },
+    {
+      "name": "Digital Wallet #1",
+      "initialBalance": 0,
+      "color": "yellow",
+      "id": 2
+    },
+    {
+      "name": "Cash",
+      "initialBalance": 0,
+      "color": "fuchsia",
+      "id": 3
+    }
+  ],
+  "transactions": [
+    {
+      "type": "income",
+      "date": "2025-06-28T02:16:03.547Z",
+      "description": "Update Balance",
+      "amount": 6000000,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 1
+    },
+    {
+      "type": "income",
+      "date": "2025-06-28T02:16:07.915Z",
+      "description": "Update Balance",
+      "amount": 1800000,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 2
+    },
+    {
+      "type": "income",
+      "date": "2025-06-28T02:16:13.085Z",
+      "description": "Update Balance",
+      "amount": 250000,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 3
+    },
+    {
+      "type": "transfer",
+      "date": "2025-07-01T02:19:43.350Z",
+      "description": "Penarikan Uang dari ATM Bank A",
+      "amount": 450000,
+      "accountId": 1,
+      "toAccountId": 3,
+      "id": 4
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-01T02:26:42.617Z",
+      "description": "Top Up BTC",
+      "amount": 2000000,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 5
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-01T02:26:19.087Z",
+      "description": "Nasi Pecel Pak John Doe",
+      "amount": 15000,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 6
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-01T02:27:51.080Z",
+      "description": "Parkir Mobil Mall X",
+      "amount": 5000,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 7
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-03T02:28:02.531Z",
+      "description": "Cicilan Kredit X (Bulanan)",
+      "amount": 899000,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 8
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-03T02:30:09.351Z",
+      "description": "Beli X di Marketplace X",
+      "amount": 95500,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 9
+    },
+    {
+      "type": "income",
+      "date": "2025-07-04T02:31:51.078Z",
+      "description": "Pencairan Dana X",
+      "amount": 600000,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 10
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-05T02:33:36.436Z",
+      "description": "Beli Buku \"Motivasi Hidup\" by John Doe",
+      "amount": 195700,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 11
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-05T02:41:46.919Z",
+      "description": "Parkir Mall X",
+      "amount": 5000,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 12
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-06T02:44:56.914Z",
+      "description": "Beli Makanan Ringan X",
+      "amount": 15000,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 13
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-06T02:57:37.026Z",
+      "description": "Warung Makan Bu Jane",
+      "amount": 15000,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 14
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-29T02:59:20.421Z",
+      "description": "Bayar Layanan Internet (Bulanan)",
+      "amount": 450000,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 15
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-29T03:00:01.300Z",
+      "description": "Top Up Item X In-Game",
+      "amount": 1985000,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 16
+    },
+    {
+      "type": "transfer",
+      "date": "2025-06-30T03:01:19.244Z",
+      "description": "Top Up Digital Wallet #1",
+      "amount": 100000,
+      "accountId": 3,
+      "toAccountId": 2,
+      "id": 17
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-05T08:59:43Z",
+      "description": "Top Up eWallet",
+      "amount": 156078,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 18
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-04T08:58:22Z",
+      "description": "Ngopi di Cafe X",
+      "amount": 249368,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 19
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-03T08:23:24Z",
+      "description": "Bayar Tol",
+      "amount": 82335,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 20
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-02T08:38:07Z",
+      "description": "Beli Pulsa",
+      "amount": 237966,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 21
+    },
+    {
+      "type": "expense",
+      "date": "2025-07-01T08:57:54Z",
+      "description": "Donasi Online",
+      "amount": 34165,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 22
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-30T08:14:22Z",
+      "description": "Isi Bensin Motor",
+      "amount": 170096,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 23
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-29T08:37:36Z",
+      "description": "Beli Pulsa",
+      "amount": 201312,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 24
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-28T08:58:44Z",
+      "description": "Makan Siang Warung Tegal",
+      "amount": 196216,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 25
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-27T08:17:13Z",
+      "description": "Jajan Pasar",
+      "amount": 67569,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 26
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-26T08:47:31Z",
+      "description": "Belanja Harian",
+      "amount": 73867,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 27
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-25T08:22:19Z",
+      "description": "Donasi Online",
+      "amount": 177758,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 28
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-24T08:38:59Z",
+      "description": "Beli Pulsa",
+      "amount": 216267,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 29
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-23T08:28:46Z",
+      "description": "Langganan Musik Premium",
+      "amount": 31260,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 30
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-22T08:03:17Z",
+      "description": "Top Up eWallet",
+      "amount": 138903,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 31
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-21T08:55:24Z",
+      "description": "Langganan Musik Premium",
+      "amount": 131631,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 32
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-20T08:22:24Z",
+      "description": "Ngopi di Cafe X",
+      "amount": 182583,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 33
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-19T08:24:33Z",
+      "description": "Top Up eWallet",
+      "amount": 197410,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 34
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-18T08:28:30Z",
+      "description": "Langganan Musik Premium",
+      "amount": 50209,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 35
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-17T08:29:19Z",
+      "description": "Beli Pulsa",
+      "amount": 36574,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 36
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-16T08:36:14Z",
+      "description": "Top Up eWallet",
+      "amount": 237363,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 37
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-15T08:36:19Z",
+      "description": "Bayar Tol",
+      "amount": 157390,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 38
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-14T08:04:28Z",
+      "description": "Top Up eWallet",
+      "amount": 193981,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 39
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-13T08:17:12Z",
+      "description": "Bayar Tol",
+      "amount": 146399,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 40
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-12T08:46:16Z",
+      "description": "Top Up eWallet",
+      "amount": 16476,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 41
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-11T08:44:12Z",
+      "description": "Bayar Tol",
+      "amount": 41885,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 42
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-10T08:26:02Z",
+      "description": "Ngopi di Cafe X",
+      "amount": 18267,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 43
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-09T08:52:56Z",
+      "description": "Ngopi di Cafe X",
+      "amount": 226529,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 44
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-08T08:19:34Z",
+      "description": "Langganan Musik Premium",
+      "amount": 190709,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 45
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-07T08:12:07Z",
+      "description": "Bayar Tol",
+      "amount": 117893,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 46
+    },
+    {
+      "type": "expense",
+      "date": "2025-06-06T08:46:59Z",
+      "description": "Isi Bensin Motor",
+      "amount": 221223,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 47
+    },
+    {
+      "type": "income",
+      "date": "2025-06-05T08:00:00Z",
+      "description": "Saldo Bank A",
+      "amount": 1500000,
+      "accountId": 1,
+      "toAccountId": 0,
+      "id": 48
+    },
+    {
+      "type": "income",
+      "date": "2025-06-05T08:00:00Z",
+      "description": "Saldo Digital Wallet #1",
+      "amount": 1800000,
+      "accountId": 2,
+      "toAccountId": 0,
+      "id": 49
+    },
+    {
+      "type": "income",
+      "date": "2025-06-05T08:00:00Z",
+      "description": "Saldo Cash",
+      "amount": 1550000,
+      "accountId": 3,
+      "toAccountId": 0,
+      "id": 50
+    }
+  ],
+  "settings": [
+    {
+      "key": "app-language",
+      "value": "id"
+    },
+    {
+      "key": "main-currency",
+      "value": 0
+    }
+  ]
+}
