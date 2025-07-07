@@ -37,6 +37,7 @@ Kanenara adalah aplikasi pelacak keuangan yang dirancang untuk membantu pengguna
    ```
 2. Buka file `index.html` di browser untuk menjalankan aplikasi.
 3. Pastikan koneksi internet tersedia untuk memuat library eksternal seperti Dexie.js dan Chart.js.
+4. Unduh file 'dummy-data.json', lalu gunakan fitur ekspor pada menu pengaturan di dalam aplikasi untuk melakukan pengujian.
 
 ## AI support explanation
 Selama pengembangan aplikasi ini, AI digunakan untuk meningkatkan produktivitas dan efisiensi. Berikut adalah peran AI dalam pengembangan:
