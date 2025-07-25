@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/user-attachments/assets/eb25aa94-8f29-4d9c-8689-0d7a7c1a4334"></p>
+<p align="center"><img src="https://github.com/user-attachments/assets/6b70ed1a-f4e0-4ace-9225-b19287b1ca65"></p>
 
 ## Description
 Kanenara adalah aplikasi pelacak keuangan yang dirancang untuk membantu pengguna mengelola akun, mencatat transaksi, dan memvisualisasikan aliran keuangan harian. Aplikasi ini menawarkan fitur-fitur intuitif untuk mempermudah pengelolaan keuangan pribadi secara efisien.
